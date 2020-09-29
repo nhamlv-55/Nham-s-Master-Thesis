@@ -37,7 +37,7 @@ Pair~\eqref{eq:pair_one} represents two parallel hyperplanes, with the first sub
 
 
 
-Instead, we represent each AST node by a vector of features that captures the necessary semantic information. Specifically, a node $N$ is first represented by a tuple $\langle\textbf{Token}, \textbf{Kind}, \textbf{CE} \rangle$. The grammar for each feature is shown in \cref{fig:features}, where angled brackets are used to represent terminals (e.g., $\term{\text{NUM}}$ is a symbol \texttt{<NUM>}). At the embedding step, \textbf{Token} and \textbf{Kind} are mapped into fixed-length vectors $\Vec{T}$ and $\Vec{K}$, while \textbf{CE} is \emph{not} embedded further. The final feature vector is the concatenation of $\Vec{T}$, $\Vec{K}$, and \textbf{CE}.
+Instead, we represent each AST node by a vector of features that captures the necessary semantic information. Specifically, a node $N$ is first represented by a tuple $\langle\textbf{Token}, \textbf{Kind}, \textbf{CE} \rangle$. The grammar for each feature is shown in \cref{fig:features}, where angled brackets are used to represent terminals (e.g., $\term{\text{NUM}}$ is a symbol \texttt{<NUM>}). At the embedding step, \textbf{Token} and \textbf{Kind} are mapped into fixed-length vectors $\vect{T}$ and $\vect{K}$, while \textbf{CE} is \emph{not} embedded further. The final feature vector is the concatenation of $\vect{T}$, $\vect{K}$, and \textbf{CE}.
 
 \textbf{Token} captures the symbol of the node. For variables and operations this is their syntactic representation; for real valued constants, it is a single token $\term{NUM}$. Note that each variable is kept as a \emph{separated} token. This is possible because in our setting, each system has finitely many variables.
 
@@ -64,7 +64,7 @@ We conclude this section with an example. \cref{fig:ast_example} shows an AST fo
 % %          \hline
 % %          \texttt{Kind} & Each kind is the AST node's kind of a node, such as "BoolVar" (Boolean variable), "RealConst" (Real constant), etc.\\
 % %          \hline
-% %          \texttt{Constant Encoding} & A vector $\vec{C}$ of length $k$ encodes the real constant value. If the node is not a real constant, $\vec{C} = \vec{0} \in \R^{k}$\\
+% %          \texttt{Constant Encoding} & A vector $\vect{C}$ of length $k$ encodes the real constant value. If the node is not a real constant, $\vect{C} = \vect{0} \in \R^{k}$\\
 % %          \hline
 % %     \end{tabular}
 % %     \caption{}
@@ -93,17 +93,17 @@ We conclude this section with an example. \cref{fig:ast_example} shows an AST fo
  % \dpy in Fig. \ref{fig:ast_example}, with the following feature vectors at each node:
 % % we have the following feature vectors at the nodes:
 % \begin{align*}
-%     \Feat(x_9) &= [\texttt{"x\_9"}, \term{REAL\_VAR}, \vec{0}] \\
-%     \Feat(x_{10}) &= [\texttt{"x\_10"}, \term{REAL\_VAR}, \vec{0}] \\
-%     \Feat(-) &= [\texttt{"-"}, \term{REAL\_OP}, \vec{0}] \\
-%     \Feat(>) &= [\texttt{">"}, \term{BOOL\_OP}, \vec{0}] \\
+%     \Feat(x_9) &= [\texttt{"x\_9"}, \term{REAL\_VAR}, \vect{0}] \\
+%     \Feat(x_{10}) &= [\texttt{"x\_10"}, \term{REAL\_VAR}, \vect{0}] \\
+%     \Feat(-) &= [\texttt{"-"}, \term{REAL\_OP}, \vect{0}] \\
+%     \Feat(>) &= [\texttt{">"}, \term{BOOL\_OP}, \vect{0}] \\
 %     \Feat(41) &= [\texttt{"<NUM>"}, \term{REAL},\mathit{CE}^6(41)]
 % \end{align*}
 % in which $\mathit{CE}(41)$ is the constant encoding of $41$, as discussed in
 % technique~\ref{trick2} \ag{The reference to the technique is unclear. Find a way
-% to explain this differently}, $\texttt{NA} = \vec{0} \in \R^{|CE(41)|}$ is padding to make sure that all feature vectors are of the same length.
+% to explain this differently}, $\texttt{NA} = \vect{0} \in \R^{|CE(41)|}$ is padding to make sure that all feature vectors are of the same length.
 % with magnitude in the range $(10^{-1}, 10^1)$. \ag{This is first time that magnitude makes some sense, but I clearly had no clue what it was before}. The original and tokenized input trees are shown in \Cref{fig:embed_example}. \ag{Also use this example to illustrate an AST, instead of introducing new examples}. In the figure, 
-% \texttt{NA} stands for a vector of the same length as the constant encoding, with all entries set to $0$ \ag{use math to be precise, introduce symbols, this should be $\texttt{NA} = \vec{0} \in \R^n$}. \ag{Use fonts to make figure readable}
+% \texttt{NA} stands for a vector of the same length as the constant encoding, with all entries set to $0$ \ag{use math to be precise, introduce symbols, this should be $\texttt{NA} = \vect{0} \in \R^n$}. \ag{Use fonts to make figure readable}
 
 % \ag{Figure uses tokens that have never been defined!}
 
