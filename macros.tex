@@ -1,0 +1,127 @@
+\newcommand{\ag}[1]{{\color{blue} [\textbf{AG}: #1]}}
+\newcommand{\NL}[1]{{\color{orange} [\textbf{NL}: #1]}}
+\newcommand{\xs}[1]{{\color{purple} [\textbf{XS}: #1]}}
+\newcommand{\term}[1]{\langle \text{#1} \rangle}
+
+% Uncomment to hide comments
+% \renewcommand{\ag}[1]{}
+% \renewcommand{\NL}[1]{}
+% \renewcommand{\xs}[1]{}
+
+\newcommand{\indgen}{\mathit{indgen}}
+
+\newcommand{\chccomp}{\textsc{CHC-COMP 2018}\xspace}
+\newcommand{\Ppos}{P^+}
+\newcommand{\Pneg}{P^-}
+\newcommand{\Mpos}{M^+}
+\newcommand{\Mneg}{M^-}
+%spacer macros
+\newcommand{\trs}{\langle \Init, \Tr, \Bad \rangle\xspace}
+\newcommand{\trinit}{\langle \Init, \Tr\rangle\xspace}
+\newcommand{\ig}{inductive generalization\xspace}
+\newcommand{\indf}{\textit{inductive}\xspace}
+\newcommand{\spc}{\textsc{Spacer}\xspace}
+\newcommand{\dpy}{\textsc{Dopey}\xspace}
+\newcommand{\GSpacer}{\textsc{GSpacer}\xspace}
+\newcommand{\csm}{\textsc{GSpacer}\xspace}
+\newcommand{\ddchc}{\textsc{LArb}\xspace}
+\newcommand{\concr}{\textsc{Concretize}}
+\newcommand{\concrlit}{\textsc{Concretize\_lit}}
+\newcommand{\concrcube}{\textsc{Concretize\_cube}}
+\newcommand{\fVar}[1]{\textsc{Vars}(#1)}
+\newcommand{\lind}[1]{#1^{L_{\downarrow}}}
+\newcommand{\const}[1]{\textsc{Consts}(#1)}
+\newcommand{\coeff}[2]{\textsc{coeff}(#1, #2)}
+\newcommand{\pobclstr}[2]{\cC_{\textit{pob}}(\langle #1, #2\rangle)}
+\newcommand{\lclstr}[1]{\cC_{\textit{lemma}}(#1)}
+\newcommand{\conjpre}[3]{\textsc{ShouldConjecture}(#1, #2, #3)}
+\newcommand{\conjProc}[3]{\textsc{Conjecture}(#1, #2, #3)}
+\newcommand{\isSat}{\textsc{isSat}}
+\newcommand{\nonLin}{\textsc{nonLin}}
+\newcommand{\mbp}{\textsc{MBP}}
+\newcommand{\itp}{\textsc{ITP}}
+\newcommand{\gen}{\textsc{GEN}}
+\newcommand{\seqItp}{\textsc{seqItp}}
+\newcommand{\resolve}{\bowtie}
+\newcommand{\Var}{\textsf{Var}}
+\newcommand{\pob}{\textsc{pob}\xspace}
+\newcommand{\pobs}{\textsc{pob}s\xspace}
+
+\newcommand{\true}{\mathit{true}}
+\newcommand{\false}{\mathit{false}}
+\newcommand{\Tr}{\mathit{Tr}}
+\newcommand{\Bad}{\mathit{Bad}}
+\newcommand{\Init}{\mathit{Init}}
+\newcommand{\Inv}{\mathit{Inv}}
+\newcommand{\Rinv}{\mathit{RelInv}}
+\newcommand{\iframe}{\operatorname{frm}}
+
+\newcommand{\limp}{\Rightarrow}
+
+\newcommand{\Sig}{\Sigma}
+\newcommand{\SigU}{X}
+\newcommand{\SigI}{S}
+\newcommand{\lit}{\textit{lit}}
+\newcommand{\Lem}{\mathit{Lem}}
+\newcommand{\GLem}{\mathit{GLem}}
+\newcommand{\Lit}{\mathit{Lit}}
+\newcommand{\GLit}{\mathit{GLit}}
+
+
+
+\newcommand{\tool}{\textsc{QuickDrop}\xspace}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\cO}{\mathcal{O}}
+\newcommand{\cI}{\mathcal{I}}
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cD}{\mathcal{D}}
+\newcommand{\cL}{\mathcal{L}}
+\newcommand{\cT}{\mathcal{T}}
+\newcommand{\cQ}{\mathcal{Q}}
+\newcommand{\cS}{\mathcal{S}}
+\newcommand{\cN}{\mathcal{N}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\RNUM}{\texttt{<RNUM> }}
+\newcommand{\INUM}{\texttt{<INUM> }}
+\newcommand{\SIGN}{\texttt{<SIGN> }}
+\newcommand{\cl}{\ell}
+\newcommand{\vx}{\vec{x}}
+\newtheorem{theorem}{Theorem}
+\newtheorem{problem}{Problem}
+
+\newcommand{\Spacer}{\textsc{Spacer}\xspace}
+\newcommand{\Lcal}{\mathcal{L}}
+
+\newcommand{\twopartdef}[4]
+{
+	\left\{
+		\begin{array}{ll}
+			#1 & \mbox{if } #2 \\
+			#3 & \mbox{if } #4
+		\end{array}
+	\right.
+}
+
+\newcommand{\ltrue}{\textsf{true}}
+\newcommand{\lfalse}{\textsf{false}}
+
+\newcommand{\gnutree}{\textsc{GNU Tree}\xspace}
+\newcommand{\insttovec}{\textsc{inst2vec}\xspace}
+\newcommand{\reinforce}{\textsc{reinforce}\xspace}
+\newcommand{\cmix}{\textsc{C-Mix}\xspace}
+\newcommand{\tempo}{\textsc{Tempo}\xspace}
+\newcommand{\llvm}{\textsc{LLVM}\xspace}
+
+\newcommand{\llpe}{\textsc{LLPE}\xspace}
+\newcommand{\occam}{\textsc{Occam}\xspace}
+\newcommand{\trimmer}{\textsc{Trimmer}\xspace}
+\newcommand{\occamo}{\textsc{occamNone}\xspace}
+\newcommand{\occama}{\textsc{occamAgg}\xspace}
+\newcommand{\chisel}{\textsc{Chisel}\xspace}
+\newcommand{\doccam}{\textsc{DeepOccam}\xspace}
+\newcommand{\codetovec}{\textsc{Code2Vec}\xspace}
+\newcommand{\pytorch}{\textsc{PyTorch}\xspace}
+\newcommand{\gsa}{\textsc{gsa}\xspace}
+
+\newcommand{\cpp}{C\texttt{++}\xspace}

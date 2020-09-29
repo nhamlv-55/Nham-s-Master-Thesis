@@ -1,0 +1,126 @@
+\section{Related work and Conclusions}\label{sec:future}
+%\subsection{Related work}
+%\paragraph{Compiler optimization using Machine learning}
+
+% \paragraph{Related work}
+Recent advances in deep learning and RL have opened new frontiers to the design
+of compiler heuristics~\cite{autotuning}. Most current approaches define actions
+at the compilation unit level: whether to run a particular optimization pass, or
+how to schedule optimization passes. For example, Cummins et al.~\cite{deeptune}
+model code as a natural language problem to predict whether to run the code on
+CPU or GPU, as well as the optimal GPU thread coarsening factors. Kulkarni et
+al.~\cite{KulkarniCWS13} use NEAT --- a genetic algorithm --- to learn an
+inlining heuristic for MaxineVM as a neural network. For interpretability, they
+then approximate the neural network by a decision tree. We, on the other hand,
+use actions at much lower granularity, focusing on specialization at each
+call-site.
+% Moreover, they do not model the compilation process as a Markov Decision
+% Process.
+
+Program code is a rich structure that can be presented in a variety of ways,
+e.g., as raw text, control-flow and call- graphs, etc. Recent application of
+deep learning for code experiment with models based on techniques from Natural
+Language Processing and Graph Neural Network (e.g.,~\cite{code2vec, inst2vec,
+  code2seq, code2blah}). Among them, \insttovec~\cite{inst2vec} is the only one
+that works on LLVM IR. %Applying \insttovec to \occam was therefore a natural
+%choice for us.
+
+The closest related work is Chisel~\cite{chisel} -- a software debloater based
+on RL. Inspired by C-Reduce~\cite{creduce}, Chisel takes a program $P$ and a
+property of interest $\varphi$ (i.e., $P$ must compile and pass tests defining
+$\varphi$) and produces the smallest program $P'$ that satisfies $\varphi$. RL
+accelerates the search for the reduced program providing a scalability boost.
+Compared to \doccam, Chisel has very different state and action space, and, is generally
+only as sound as the test cases defining $\varphi$.
+
+%% Only few are done at deeper levels, such as call-sites.
+%% \cite{KulkarniCWS13} is closest to our work, in which the authors use
+%% NEAT - a genetic algorithm - to learn an inlining heuristic for
+%% MaxineVM in the form of a neural network, then construct a decision
+%% tree to approximate the neural network for interpretability. However,
+%% \cite{KulkarniCWS13} does not model the compilation process as a
+%% Markov Decision Process. \cite{chisel} also uses Reinforcement
+%% learning to debloat software, but works on a different action, which
+%% is delta debugging. Delta debugging relies on test suites and is not
+%% sound, while \emph{specialization} relies on specified execution
+%% environments and is sound.
+
+%% \paragraph{PE-based software debloaters:}
+%% \trimmer~\cite{trimmer} and \occam~\cite{occam} are two prominent PE-based
+%% software debloaters. \doccam is built on top of \occam, which allows the specialization policy to be defined. In contrast, 
+%% \trimmer limits call-site specialization to cases where the original functions can be eliminated.
+
+%\paragraph{Deep learning for code:}\label{par:deepcode}
+
+%% Source code is a rich structure that could be viewed as raw texts or
+%% graphs. Hence, recent work in deep learning for code has tried to
+%% build models based on results in Natural Language Processing and Graph
+%% Neural Network \cite{code2vec, inst2vec, code2seq, code2blah}.  Among
+%% them, to the best of our knowledge, \insttovec\cite{inst2vec} is the
+%% only one that looks at code at the LLVM IR level. Applying \insttovec
+%% to \occam was therefore a natural choice for us.
+
+%\subsection{Discussion}
+% \paragraph{Conclusions}
+In this thesis, we present \doccam --- an end-to-end tool to learn
+specialization heuristics for software debloating. Our preliminary results
+suggest that it is feasible to use RL to learn an effective specialization
+heuristic to optimize a variety of related metrics. They also suggest that out
+of the box, pretrained embedding such as \insttovec might not be applicable for the task.
+%
+% Ashish: Either we should say why "using a deep representation of IR is the way to move forward", or weaken the statement to one such as:
+% While our initial foray into embedding the IR into a deep representation (using \insttovec) did not outperform hand crafted features, we believe there is scope to improve this in the future.
+%
+We hope that \doccam contributions in feature engineering and architecture
+might be applicable to other compiler optimization tasks such as inlining.
+
+This chapter is adapted from the following published work:
+\begin{itemize}
+    \item Nham Le, Ashish Gehani, Arie Gurfinkel, Susmit Jha, Jorge A.Navas, \textit{Reinforcement Learning Guided Software Debloating}, Workshop on ML for Systems at NeurIPS 2019
+\end{itemize}
+% For future directions, we have 3 directions:                                     %
+% \paragraph{Better representation of the code} While the features that we are     %
+% collecting is enough for the pipeline to work and shows a positive learning      %
+% signal, it is clear that we are only using surface level information about       %
+% the code. It is not impossible to have 2 call-sites that have the                 %
+% same features that we are using, but have different instructions or order of     %
+% instructions in both the caller and the callee, causing state aliasing.          %
+% Using embeddings mentioned in ~\ref{par:deepcode} should give us more            %
+% information, hence reduce state aliasing and help the learning process.          %
+% \paragraph{Better contextual information} There are multiple way we can use to   %
+% encode the calling context: a window of \emph{n} instructions before and         %
+% after before the call-site, or an attention map at each call-site, etc. Those      %
+% encoding will likely provide more information than the feature we are using.     %
+% \paragraph{Transfer learning} The pipeline that we are using is online-learning: %
+% For each software, we need to relearn everything. There are no learnings         %
+% that can be transfered. For small software, we can afford to train REINFORCE     %
+% multiple iteration, but the usefulness of this approach is limited when          %
+% dealing with large and complex softwares. To learn a general policy that can     %
+% work on more than 1 softwares is still an open research problem.                 %
+% %                                                                                %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% \item Compare with other software debloaters:                          %
+%   \begin{itemize}                                                      %
+%     \item The closest related work is \chisel~\cite{chisel} because    %
+%       they also use reinforcement learning.                            %
+%     \item Apart from \chisel, I'm only aware of                        %
+%       Piece-Wise~\cite{piecewise} but it's quite different because it  %
+%       only focus on removing dead functions. So we don't probably need %
+%       to mention it. Ashish should help here.                          %
+%   \end{itemize}                                                        %
+%                                                                        %
+% \item Compare with compiler optimizations using machine learning       %
+%   (e.g., \cite{autotuning,KulkarniCWS13})                              %
+%                                                                        %
+% \item Compare with recent POPL'19 \codetovec~\cite{code2vec}           %
+%                                                                        %
+% \end{itemize}                                                          %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "neurips_2019"
+%%% End:

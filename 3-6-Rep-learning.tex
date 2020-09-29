@@ -1,0 +1,145 @@
+\section{Representation learning}
+\newcommand{\treelstm}{\textsc{TreeLSTM}\xspace}
+\newcommand{\R}{\mathbb{R}}
+\label{chap:rep-learning}
+\paragraph{Representing symbolic formulas.}
+We represent logical formulas as Abstract Syntax Trees (ASTs): operators label nodes of the tree, operands are children, constants (boolean and numeric) and variables are leaves. 
+An example of an AST is shown in \cref{fig:ast_example}.
+% For example, an AST representation for formulas $x_4 = \ltrue$ and $x_9 - x_{10} \geq 41$ are shown in \Cref{fig:ast_example}.
+% \xs{consider merging fig-4 and fig-5 into one, which should show: 1) a formula; 2) its AST; 3) embeddings; why don't we draw figure in the same way as we did in the overview?}
+
+ASTs are natural representations of formulas that are traditionally used in parsing and compilers. They preserve the key structure of the formula, while hiding (or abstracting) unnecessary details such as white space, commas and parentheses. Alternative representations, for example, as a sequence of tokens, abstract too much of the structure of the formula, while highlighting unnecessary differences.
+
+\input{fig_grammar}
+
+Nonetheless, multiple semantically equivalent formulas can be represented by different trees. For example, the formulas $x + y > 0$ and $y + x > 0$ are semantically equivalent, yet differ in the concrete syntax, \emph{and} have different ASTs. To mitigate this, we put each formula in a ``normal'' form by simplifying all expressions that we can (for example, rewriting $x + 0$ into $x$), and ordering all associative operators. While there are many ways to normalize formulas (while not achieving a true normal form), we adopt a simple heuristic by using a simplification engine of the SMT solver Z3 \cite{z3}.
+The normalizer cannot handle deep semantic equivalences, such as normalizing $2/7 \cdot x_9 - 4/7 \cdot x_{10} \geq 0$ into $1/7\cdot x_9 - 2/7 \cdot x_{10} \geq 0$. However, we believe it is good enough for our setting.
+% \ag{Bad example, Z3 simplifier will reduce polynomials in exactly the way shown, it will also reduce all fractions}
+
+Note that semantically equivalent rewriting and normalization make our representations of symbolic formulas essentially \textit{directed acyclic graphs (DAGs) modulo semantic equivalence}, because semantically equivalent subtrees share the exact same embedding. Indeed, representations of symbolic formulas in our implementation are DAGs, although they are viewed as if they were trees by the embedding model. Without further notice, when we refer to a node in a tree, we actually mean its corresponding node in the DAG.
+
+% \ag{This last paragraph is very weak. This sub-section also ends without much of a conclusion.}
+We use TreeLSTM~\cite{TreeLSTM} to aggregate information at each node in the tree into a fixed-length vector before feeding it to our subsequent networks. The process is illustrated in \cref{subfig-4:model-detail}. In the rest of this section, we describe the features that are used to encode each AST node into a vector to be combined by a TreeLSTM.
+
+
+\paragraph{AST node features.}
+We assume that the reader is familiar with the basics of the TreeLSTM neural networks. One of the main requirements is that each node $N$ of the input tree must be represented by a fixed-length vector in $\R^n$.
+
+A common technique to map a node $N$ to a vector is to first map the infinite (or simply large) set $\Sigma$ of all possible nodes into a finite set $T$ of tokens (a.k.a.  \emph{tokenization}), and then have a dictionary $E$ that maps each token in $T$ into a fixed-length vector (a.k.a. \emph{embedding}). During tokenization, many nodes have to be mapped into the same token. For example, in NLP applications, all out-of-vocabulary words are mapped into a token \texttt{<UNK>}. Similarly in Programming Language applications, all variable and function names and all numeric constants are mapped into three tokens: \texttt{<VAR>}, \texttt{<FUNC>}, and \texttt{<NUM>}, respectively.
+
+Unfortunately, this tokenization scheme is not applicable to our setting. We believe that both the variable names and the values of the numeric constants are highly relevant! For example, consider two pairs of formulas:
+\begin{align}
+   x_1 - 2x_{3} + 7x_{5} &\geq 10 & x_1 - 2x_{3} + 7x_{5} &\geq 14 \label{eq:pair_one}\\
+   x_1 - 2x_{3} + 7x_{5} &\geq 10 & x_1 + x_{3} - x_{5} &\geq 0 \label{eq:pair_two}
+\end{align}
+Pair~\eqref{eq:pair_one} represents two parallel hyperplanes, with the first subsuming the second. Pair~\eqref{eq:pair_two} represents two intersecting hyperplanes and cannot be simplified any further. The difference between the two pairs disappears when all numeric constants are mapped to a small finite set of tokens. Yet, this difference is crucial for successful learning in our context! 
+
+
+
+
+Instead, we represent each AST node by a vector of features that captures the necessary semantic information. Specifically, a node $N$ is first represented by a tuple $\langle\textbf{Token}, \textbf{Kind}, \textbf{CE} \rangle$. The grammar for each feature is shown in \cref{fig:features}, where angled brackets are used to represent terminals (e.g., $\term{\text{NUM}}$ is a symbol \texttt{<NUM>}). At the embedding step, \textbf{Token} and \textbf{Kind} are mapped into fixed-length vectors $\Vec{T}$ and $\Vec{K}$, while \textbf{CE} is \emph{not} embedded further. The final feature vector is the concatenation of $\Vec{T}$, $\Vec{K}$, and \textbf{CE}.
+
+\textbf{Token} captures the symbol of the node. For variables and operations this is their syntactic representation; for real valued constants, it is a single token $\term{NUM}$. Note that each variable is kept as a \emph{separated} token. This is possible because in our setting, each system has finitely many variables.
+
+\textbf{Kind} captures the type (or sort) of the expression rooted at the AST node. The value is one of a fixed pre-defined values such as $\term{\text{BOOL\_OP}}$, for a Boolean operator, etc. In principle, the sort can be learned automatically, similar to how heads in BERT~\cite{bert} seems to be able to learn part-of-speech for words in an unsupervised manner. However, we see no benefit of learning the sort since this information is already easily available.
+
+\textbf{CE} (constant encoding) captures the numeric value of the node for real valued constants, and is a vector of $0$ for other nodes. The encoding of each number $p \in \R$ is parameterized by an encoding constant $n$ (in our experiments, $n = 6$) that determines the bounds of the magnitude of $p$.
+
+Concretely, for each numerical constant $p$ that is represented as $s \times 10^{e}$ in the scientific notation, we encode the significant $s$ by its float representation and encode the exponent $e$ using a one-hot encoding vector. To one-hot encode $e$, we put $e$ in the range $[-n, n]$. If $e$ is out of range, we set it to either the upper or lower bound. For example, $\text{CE}^{2}(41) = [4.1 \, 0\, 0\, 0\, 1\, 0]$, and $\text{CE}^0(41) = [4.1 \, 1 ]$.  Our  motivation for $\text{CE}$ is to help \dpy to quickly extract  magnitudes of real constants along with their value.
+
+We conclude this section with an example. \cref{fig:ast_example} shows an AST for $x_9 - x_{10} > 41$ and its transformation into a tree of feature vectors. The tree is further embedded and fed into a standard TreeLSTM model.
+% The tree is further embedded and compressed into a DAG before being fed into a TreeLSTM.
+
+% \ag{We talked about DAG in overview, but here the DAG has disappeared}
+
+
+% % \begin{table}[]
+% %     \centering
+% %     \begin{tabular}{|p{1.8cm}|p{6cm}|}
+% %         \hline
+% %          Feature & Details  \\
+% %          \hline
+% %          \texttt{Token} & 
+
+% %          \hline
+% %          \texttt{Kind} & Each kind is the AST node's kind of a node, such as "BoolVar" (Boolean variable), "RealConst" (Real constant), etc.\\
+% %          \hline
+% %          \texttt{Constant Encoding} & A vector $\vec{C}$ of length $k$ encodes the real constant value. If the node is not a real constant, $\vec{C} = \vec{0} \in \R^{k}$\\
+% %          \hline
+% %     \end{tabular}
+% %     \caption{}
+% %     \label{tab:features}
+% % \end{table}
+
+
+% \begin{itemize}
+%     \item \texttt{TOKEN}. Except for real constants, the token for each node is its string representation (\texttt{"x\_1"}, \texttt{"="}, etc). Note that each variable is kept as a \emph{separated} token: in our setting, each system has finitely many variables, hence a finite, and usually quite small, set of variable tokens suffices. Real constants are all mapped to the same \texttt{<NUM>} token.
+%     \item \texttt{KIND}. We want our feature vector to preserve the kind (sort) of each token.
+%     While this information in principle could be learned automatically in the
+%     same vein that heads in BERT~\cite{bert} seems to be able to learn
+%     part-of-speech for words in an unsupervised manner, we see no benefit of
+%     learning it while we already have the precise kind information at hand.
+% % This is because we learn on one $\trs$ and apply to the same
+%   % $\trinit$ but with a different $\Bad$, so the set of variables stay the same
+%   % between training and inferencing.
+%     \item \texttt{Constant Encoding} 
+%     We encode each real constant based on its scientific form: For each numerical constant $c = m \times 10^{n}$, we keep the coefficient $m$ and encode the exponent $n$ using a one-hot encoding vector. To one-hot encode $n$, we prefix a range for $n$, and if $n$ is out of range we set it to either the upper or lower bound. In this work, we bound $n$ by $[-6, 6]$, which is enough to contain all constants in our benchmark. 
+  
+% \end{itemize}
+% \ag{Got stuck in number representation. This needs another passs. It should be possible to summarize the features in a table. Give mathematical definitions, like $|c|$ for magnitude, $\max(c_1, c_2)$ for maximum, etc. An example of tokenization is needed. The connection to transition relation and bad states seems out of place.}
+
+% \ag{Need a name for our setting. The usual name is \emph{multi-property verification}. One system, many properties. Can cite recent FMCAD paper from Rozier et al. on that being an industrial problem. Then we learn on one property and transfer to other properties. Finding the right terms is to talk about what we do is super super important, don't just use any term, and once term is picked be very very consistent.}
+% Moreover,  \ag{lost in this paragraph. Don't mix discussion and related work with main construction. First explain and illustrrate construction, then talk about birds and the bees.}
+ % \dpy in Fig. \ref{fig:ast_example}, with the following feature vectors at each node:
+% % we have the following feature vectors at the nodes:
+% \begin{align*}
+%     \Feat(x_9) &= [\texttt{"x\_9"}, \term{REAL\_VAR}, \vec{0}] \\
+%     \Feat(x_{10}) &= [\texttt{"x\_10"}, \term{REAL\_VAR}, \vec{0}] \\
+%     \Feat(-) &= [\texttt{"-"}, \term{REAL\_OP}, \vec{0}] \\
+%     \Feat(>) &= [\texttt{">"}, \term{BOOL\_OP}, \vec{0}] \\
+%     \Feat(41) &= [\texttt{"<NUM>"}, \term{REAL},\mathit{CE}^6(41)]
+% \end{align*}
+% in which $\mathit{CE}(41)$ is the constant encoding of $41$, as discussed in
+% technique~\ref{trick2} \ag{The reference to the technique is unclear. Find a way
+% to explain this differently}, $\texttt{NA} = \vec{0} \in \R^{|CE(41)|}$ is padding to make sure that all feature vectors are of the same length.
+% with magnitude in the range $(10^{-1}, 10^1)$. \ag{This is first time that magnitude makes some sense, but I clearly had no clue what it was before}. The original and tokenized input trees are shown in \Cref{fig:embed_example}. \ag{Also use this example to illustrate an AST, instead of introducing new examples}. In the figure, 
+% \texttt{NA} stands for a vector of the same length as the constant encoding, with all entries set to $0$ \ag{use math to be precise, introduce symbols, this should be $\texttt{NA} = \vec{0} \in \R^n$}. \ag{Use fonts to make figure readable}
+
+% \ag{Figure uses tokens that have never been defined!}
+
+% \begin{figure}[t]
+% \Tree[.{'$\geq$', Bool, NA} [.{'-', Op, NA}   [{'x\_9', RVar, [0,0,0,0]} ]
+%                     [.{'x\_10', RVar, NA} ]]
+%               [.{'Num', RCon, [0,0,1,4.1]} ]]
+% \caption{Example of an AST and its embedding.}
+% \label{fig:embed_example}
+% \end{figure}
+% A design decision that works in symbolic representation learning has to face is how to tokenize real constants and variables: unlike mathematics operators, there are possibly an infinite number of real constants and variables. A common choice is to map all variables into a single token $\texttt{<VAR>}$, and all real constants into a single token \texttt{<NUM>} \cite{}, \cite{}.
+
+% This mapping doesn't work in our case because.
+
+% In this work, we propose to \emph{keep} each variable and real constant as a separated token. 
+% \subsection{Generate training data}
+% \paragraph{Correlation matrix}
+% \paragraph{Antirelation matrix}
+% Talk about why we encode our formulas this way: constant embedding, 
+% \subsection{Model, loss function, training technique}
+% Our literals are encoded as AST.
+
+% TreeLSTM is a model that explicitly preserve information in a tree-structured topology. 
+
+% The functions that we want to learn are not symmetric: f(l1, l2) != f(l2, l1). We explicitly enforce it by adding a dot product into the loss function
+
+% Our matrices are sparsed: after capping, a majority of the entries in the matrices (> 90\%) are 0. To deal with it, we employ negative sampling technique: blah blah
+
+% Those techniques are inspired by GloVe
+% \subsection{Using the model}
+% \texttt{initKeep} essentially is the same as \textsc{IterDrop}, but instead of running till the queue $\texttt{C}$ is empty, we run it till $\texttt{K}$ has at leask $k$ elements, in which $k$ is a parameter of our choosing.
+
+
+% Given a Positive and a Negative model, we employ them following Algorithm
+% \ref{alg:main}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "0.0_main"
+%%% End:

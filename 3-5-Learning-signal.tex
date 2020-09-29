@@ -1,0 +1,146 @@
+\section{Learning co-occurrence probabilities}
+\label{sec:learning-signal}
+\newcommand{\thres}{\textit{threshold}}
+
+% Directly using machine learning to address the inductive generalization problem is a non-trivial structure prediction problem, which takes a set of symbolic formulas as input and outputs another set of symbolic formulas that are more general and more concise.
+%     Though in principle, sequence-to-sequence models \cite{seq2seq}
+%     % machine learning models in NLP or machine translation 
+%     are applicable, they are unlikely to accomplish such a complicated reasoning task with existing machine learning models. In fact, even predicting equivalence between two simple symbolic expressions remains challenging~\cite{Allamanis:icml17}.
+%     Rather than having an end-to-end machine learning solution,
+%     we embed a learning component in the classic symbolic approach of inductive generalization. 
+%     Specifically, the learning component captures the co-occurrence between literals appearing in past runs and predicts the likelihood of keeping or dropping a literal in the current run. 
+
+Recall from \cref{sec:overview} that in this work, instead of having an end-to-end ML solution, we learn to predict whether a literal could be dropped from a lemma, based on its co-occurrences with other literals in the training data. Concretely, we want to learn how likely a literal is kept, given the existence of another literal in the solution. While calculating the exact probability of this event in the training data and learn a neural network to approximate it in a \emph{regression} manner seems like a natural approach, it is actually not desirable: the exact probabilities, even with binning, \emph{are not consistent between different properties of the same system}. Fortunately, we observe that pairs with co-occurrence probabilities above a certain threshold are \emph{consistent} across different properties!
+
+Thus, we frame our problem into a \emph{classification problem}:
+% \xs{Insight and problem should be brought up earlier, rather than near the end}
+\begin{problem}[Literal Co- and Anti-occurrence Classification]
+% \label{prob:literal:rel}
+Given a set of literals $\cL$ and a scoring function $f: \cL \times \cL \mapsto [0,1]$, 
+train a classifier $M$ %$M : \cL \times \cL \mapsto [0,1] $ 
+s.t. $M(\lit_i,\lit_j) \approx f(\lit_i, \lit_j)$.
+\end{problem}
+We use two scoring functions:
+{\small\begin{align*}
+    f^{+}(\lit_i, \lit_j) &=
+    \twopartdef { 0 } {\Ppos_{ij} < \thres} 
+                { 1 } {\Ppos_{ij} \geq \thres} \\
+    f^{-}(\lit_i, \lit_j) &=
+    \twopartdef { 0 } {\Pneg_{ij} < \thres} 
+                { 1 } {\Pneg_{ij} \geq \thres}
+\end{align*}}%
+where $\Ppos$ and $\Pneg$ are co- and anti-occurrence matrices that capture the likelihood that two literals appear or do not appear in the same generalized lemma, respectively.
+% \NL{We are still in the context of Problem 1, so }
+To define $\Ppos$ and $\Pneg$ formally, assume that there is a a finite set of \emph{original} lemmas $\Lem$, and a corresponding  set of generalized lemmas $\GLem$. Inductive generalization is a function $\indgen: \Lem \mapsto \GLem$. The sets of all literals in $\GLem$ and $\Lem$ are $\GLit$ and $\Lit$, respectively. A generalized lemma is indicated by a prime, so that lemma $\ell'=\indgen(\ell)$ is the generalization of lemma $\ell$. Then, the co- and anti-occurrence matrices are defined as follows: 
+{\small\begin{align*}
+\Ppos_{ij} &= Pr(\lit_j \in \ell' \mid \lit_i \in \ell')\\
+\Pneg_{i,j} &= Pr(\lit_j \not \in \ell' \mid \lit_i \in \ell', \lit_i \in \ell, \lit_j \in \ell)
+\end{align*}}%
+That is, $\Ppos_{ij}$ is the probability that a literal $\lit_j$ appears in a lemma $\ell' \in \GLem$ that contains $\lit_i$, and $\Pneg_{ij}$ is the probability that a literal $\lit_j$ does not appear in a lemma $\ell'$ given that literal $\lit_i \in \ell'$ and both $\lit_i$ and $\lit_j$ are in $\ell$. $\Ppos$ is of the size $|\GLit|\times|\GLit|$, and $\Pneg$ is of the size $|\Lit|\times|\Lit|$. They are \emph{not} complimentary: \mbox{$\Ppos_{ij} + \Pneg_{ij} \neq 1$}. Neither is symmetric: \mbox{$\Ppos_{ij} \neq \Ppos_{ji}$}~and~\mbox{$\Pneg_{ij} \neq \Pneg_{ji}$}.
+
+% SAVE AND MOVE TO NHAM THESIS
+% To define $\Ppos$ and $\Pneg$ formally, we begin with introducing some notation. Assume that there is a a finite set of \emph{original} lemmas $\Lem$, and a corresponding  set of generalized lemmas $\GLem$. Inductive generalization is a function $\indgen: \Lem \mapsto \GLem$. A generalized lemma is indicated by a prime, so that lemma $\ell'=\indgen(\ell)$ is the generalization of lemma $\ell$. Let $\Lit$ be the set of literals appearing in original lemmas, $\Lit = \{\lit\in \ell \mid \ell \in \Lem\}$; and $\GLit$ be the set of literals appearing in generalized lemmas, $\GLit = \{\lit\in\ell' \mid \ell' \in \GLem\}$.
+\begin{itemize}
+    \item Let $F$ be a literal-frequency matrix of size $|1\times\GLit|$. $F_i$ is the number of times a literal $\lit_i$ appears in a \emph{generalized} lemma.
+    Formally, $F_i = |\{ \ell \in \GLem \mid \lit_i \in \ell\}|$.
+    \item Let $X$ be a literal co-occurrence matrix of size $|\GLit| \times |\GLit|$. $X_{ij}$ is the number of times both $\lit_i$ and $\lit_j$ are in some \emph{generalized} lemma in $\GLem$. Formally, $X_{ij} = |\{ \ell \in \GLem \mid \lit_i \in \ell, \lit_j \in \ell\}|$.
+    Note that $X_{ij} = X_{ji}$. For consistancy, we let $X_{ii} = F_{i}$.
+    \item $\Ppos$ is a \emph{literal co-occurrence probability matrix} of size $|\GLit| \times |\GLit|$. $\Ppos_{ij}$ is the probability that $\lit_j$ appears in a \emph{generalized} lemma $\ell'$ given that $\lit_i$ is in $\ell'$. Formally, $\Ppos_{ij} = Pr(\lit_j \in \ell' \mid \lit_i \in \ell') = X_{ij}/F_i$ if $F_i \neq 0$, and $0$ otherwise. 
+    
+\end{itemize}
+
+The definition of the anti-occurrence matrix $\Pneg$ is similar. \newcommand{\xcor}{X^\mathit{cor}}
+\newcommand{\xanti}{X^{\mathit{anti}}}
+\begin{itemize}
+    \item Let $\xcor$ be a literal co-occurrence matrix of size $|\Lit| \times |\Lit|$, such that $\xcor_{ij}$ is the number of times $\lit_i$ and $\lit_j$ are in a lemma $\ell \in \Lem$. Formally, $\xcor_{ij} = |\{ \ell \in \Lem \mid \lit_i \in \ell, \lit_j \in \ell\}|$. Clearly, $\xcor_{ij} = \xcor_{ji}$.
+    \item  Let $\xanti$ be a literal anti-occurrence matrix of size $|\Lit| \times |\Lit|$, such that $\xanti_{ij}$ is the number of times a pair $(\lit_i, \lit_j)$ satisfies the following conditions: (a) $\lit_i$ and $\lit_j$ are in in some lemma $\ell \in \Lem$, (b) $\lit_i$ is in the corresponding \emph{generalized} lemma $\ell' \in \GLem$, and (c) $lit_j$ is \emph{not} in $\ell'$. For consistancy, we set $\xanti_{ii} = 0$. Formally, $\xanti_{ij} = |\{ \ell \in \Lem 
+    \mid 
+    \ell' = indgen(\ell), 
+    \lit_i,\lit_j \in \ell,  
+    lit_i \in \ell', lit_j \not\in \ell'|\}$.
+    \item     A literal anti-occurrence probability matrix $\Pneg$ of size $|\Lit| \times |\Lit|$ is defined such t hat $\Pneg_{ij}$ is the probability that $lit_j$ is \emph{not} the generalized lemma given that $lit_i$ is in the generalized lemma. Formally, $\Pneg_{ij} = \xanti_{ij}/\xcor_{ij}$ if $\xcor_{ij} \neq 0$, and $0$ otherwise. Note that, like $\Ppos$, $\Pneg$ is not symmetric.
+\end{itemize}
+
+
+
+     
+    
+%    Note that $\Ppos_{ij} \neq \Ppos_{ji}$: the co-occurrence probability is \emph{not} symmetric.
+
+An an example, consider a set $\Lem = \{\ell_1, \ell_2, \ell_3\}$ of~3 original lemmas and the corresponding set $\GLem = \{\ell'_1, \ell'_2, \ell'_3\}$ of generalizations: 
+{\small\begin{align*}
+   \ell_1 &= \{\lit_1, \lit_2, \lit_3, \lit_4\} &  \ell'_1 &= \{\lit_1, \lit_2, \lit_3\} \\
+   \ell_2 &= \{\lit_1, \lit_2, \lit_3\} &  \ell'_2 &= \{\lit_1, \lit_2\} \\
+   \ell_3 &= \{\lit_1, \lit_3, \lit_4\} & \ell'_3 &= \{\lit_1\}
+\end{align*}}%
+% Then,
+% {\small\begin{align*}
+% \small
+% \Ppos &=
+%   \begin{vmatrix}
+%     1 & .67 & .33 \\
+%     1 & 1 & .5  \\
+%     1 & 1 & 1  \\
+%   \end{vmatrix} &
+%   \Pneg &= 
+%       \begin{vmatrix}
+%     0 & 0 & .67 & 1 \\
+%     0 & 0 & .5 & 1 \\
+%     0 & 0 & 0 & 1 \\
+%     0 & 0 & 0 & 0
+%   \end{vmatrix}
+% \end{align*}}%
+\NL{Fix the example}
+In the example:
+\begin{align*}
+    \Lem &=\{\ell_1, \ell_2, \ell_3\} & \GLem &=\{\ell_1', \ell_2', \ell_3'\}\\
+    \Lit &=\{\lit_1, \lit_2, \lit_3, \lit_4\} & \GLit &=\{\lit_1, \lit_2, \lit_3, \lit_4\}\\
+  F &= [3, 2, 1, 1] \\
+  X &= 
+  \begin{vmatrix}
+    3 & 2 & 1 & 1 \\
+    2 & 2 & 0 & 0 \\
+    1 & 0 & 1 & 0 \\
+    1 & 0 & 0 & 1
+    \end{vmatrix}
+    &
+  \Ppos &= 
+  \begin{vmatrix}
+    1 & .67 & .33 & .33 \\
+    1 & 1 & 0 & 0 \\
+    1 & 0 & 1 & 0 \\
+    1 & 0 & 0 & 1
+  \end{vmatrix}
+\end{align*}
+Thus, $\Ppos_{12} = 0.67$ and $\Ppos_{13} = 0.33$. That is,
+ $\lit_2$ is twice as likely as $\lit_3$ to be in the same generalized lemma as $\lit_1$.
+
+%\newcommand{\xcor}{X^{\text{cor}}}
+%\newcommand{\xanti}{X^{\text{anti}}}
+
+
+\paragraph{Dataset creation and Model training.} Our goal is to learn the two classifiers $\Mpos$ and $\Mneg$ that approximate $f^{+}$ and $f^{-}$, respectively. To create the sets $\Lem$ and $\GLem$, we run \spc on an instance and collect all generalization steps. This data is used to compute $\Pneg$ and $\Ppos$ based on their definitions.
+% \ag{This is where in the thesis the computation and definition of all the supporting matrices goes} 
+We then fix a threshold and convert the matrices into a binary classification dataset.
+
+% \xs{Remeber to have some paragraph titles; in this section so far, we have only one.}
+We train both classifiers using the architecture shown in \cref{subfig-4:model-detail}. It consists of a TreeLSTM network followed by two fully connected layers. To enforce the asymmetry in the learned classifier, we take the dot product of the TreeLSTM output vectors and concatenate them together before feeding them to the first fully connected layer. Since both $\Ppos$ and $\Pneg$ are sparse, we employ a negative sampling rate, directly inspired by work on learning word co-occurrence probability~\cite{glove}.
+% \xs{Why not end-to-end?}
+% \NL{It is hard}
+
+% \xs{Why two models?}
+% \NL{Positive model tell you what literal to be kept, but for the other literals, it doesnt say whether a literal is more likely to be drop than another. Negative model explicitly tell you one literal is more likely to be dropped.}
+% \xs{Let's have a paragraph motivating why we learn co-occurrence, instead of letting ML models be in charge of everything}
+\paragraph{Discussion.} There are many alternative ways to guide generalization using a neural component than the one we chose. Perhaps most desirable is to have an end-to-end solution in which the neural component takes an original lemma as input and produces a generalized lemma as output. However,  the symbolic reasoning required for this is so complex that we believe that such a solution is much harder to train and scale up. Another alternative to learn an approximation of the inductive check, i.e., the function $\mathit{isInductive}(\mathit{Context}, \ell) \mapsto \{true, false\}$ that determines whether a candidate lemma $\ell$ is inductive in the current context. We have tried such an approach, but could not make it effective. The difficulty is that the $\mathit{Context}$ that is used by the inductive checker is a large symbolic formula. This makes training the network difficult. We suspect is as hard as \emph{learning a neural SMT-solver}~\cite{DBLP:conf/iclr/SelsamLBLMD19,DBLP:conf/sat/SelsamB19}. We have also considered using just the co- or anti-occurrence matrices, but the results are not as good as shown by our empirical evaluation (\cref{sec:dopey-exp}). 
+% \ag{I don't see the difference between end-to-end and the second alternative}
+
+% With the 2 learned models, we still need to address the issue of how to integrate them into \spc to do inductive generalization, which we will discuss in the following section.
+%% THINGS TO APE
+% 5PREDICTING SATISFIABILITY
+%Although our ultimate goal is to solve SAT problems arising from a variety of domains, we beginby training NeuroSAT as a classifier to predict satisfiability onSR(40).  Problems inSR(40)aresmall enough to be solved efficiently by modern SAT solvers—a fact we rely on to generate the problems—but the classification problem is highly non-trivial from a machine learning perspective.Each problem has 40 variables and almost 200 clauses on average, and the positive and negativeexamples differ by negating only a single literal occurrence out of a thousand.  We were unable totrain an LSTM on a many-hot encoding of clauses (specialized to problems with 40 variables) topredict with>50% accuracy on its training set. Even the canonical SAT solver MiniSAT (Sorensson& Een, 2005) needs to backjump3almost ten times on average, and needs to perform over a hundredprimitive logical inferences (i.e.unit propagations) to solve each problem.
+% We instantiated the NeuroSAT architecture described in§3 withd= 128dimensions for the literalembeddings, the clause embeddings, and all the hidden units;3hidden layers and a linear outputlayer for each of the MLPsLmsg,Cmsg, andLvote; and rectified linear units for all non-linearities.We regularized by the`2norm of the parameters scaled by10−10, and performedT= 26iterationsof message passing on every problem.  We trained our model using the ADAM optimizer (Kingma& Ba, 2014) with a learning rate of2×10−5, clipping the gradients by global norm with clippingratio0.65(Pascanu et al., 2012). We batched multiple problems together, with each batch containingup to 12,000 nodes (i.e.literals plus clauses). To accelerate the learning, we sampled the number ofvariablesnuniformly from between 10 and 40 during training (i.e.we trained onSR(U(10,40))),though we only evaluate onSR(40). We trained on millions of problems.After training, NeuroSAT is able to classify the test set correctly with 85% accuracy.  In the nextsection, we examine how NeuroSAT manages to do so and show how we can decode solutions tosatisfiable problems from its activations.  Note:  for the entire rest of the paper,NeuroSATrefers tothe specific trained model that has only been trained onSR(U(10,40))
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "0.0_main"
+%%% End:

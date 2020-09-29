@@ -1,0 +1,17 @@
+\section{Organizations of the thesis}
+This thesis proposes two neural-guided heuristics for  software debloating - a compiler optimization task, and inductive generalization - a model checking algorithm's components. The key novelty is in automatically learning useful signals from a discrete logic world using a differientable framework. The rest of the thesis is structured as follows:
+
+In \cref{chap:background}, we introduce needed background on our domains, which are Symbolic Model Checking and Software Debloating, our learning paradigms, which are Deep learning and Reinforcement learning, and finally our engineering glue that binds the realm of existing compilers and model checkers with a neural-guided heuristic: gRPC.
+
+In \cref{chap:dopey}, we present a novel neural-symbolic SMC, called \dpy --- inspired by the
+learning of co-occurrence probabilities in NLP. \dpy
+learns offline dependence between atoms that do (or do not) appear together in
+facts (called \emph{lemmas}) that are learned by the SMC. The neural net
+is then used in successive runs of the SMC on different properties of the same system to guide 
+the inductive generalization heuristic. Thus, in a
+multi-property setting, learning from one verification task generalizes to
+others.
+
+In \cref{chap:doccam}, we present a neural-guided software debloating tool, called \doccam. \doccam uses Reinforcement learning to learn a heuristic for when to or not to apply \emph{specialization} -- a particular compiler optimization in which inputs those are known to be fixed (e.g a web server that is known to always run using HTTP 2.0) are replaced with their values. The metrics that \doccam tries to optimize is the number of ROP gadgets in the compiled binaries.
+
+Finally, we outline a number of future research direction in \cref{chap:future}, and conclude in \cref{chap:conclusion}.

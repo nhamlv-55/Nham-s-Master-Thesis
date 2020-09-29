@@ -1,0 +1,21 @@
+\begin{table}[t]
+  \centering
+  \small
+  \renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}lccc@{}}\toprule
+    & All & Unsafe & Safe\\
+  \midrule
+    Solving + infer. time & 1.51 & 1.50 & 1.58\\
+    Solving time & 2.16 & 2.46 & 2.02\\
+    SMT solving time & 2.25&2.71&2.08\\
+    % Generalization + infer. time & 1.58 & 1.06 &1.67\\
+    Generalization time & 3.26& 3.63 & 1.67\\
+    \bottomrule
+\end{tabular}
+\caption{\dpy's speed up compared to \spc on instances solved by both.}
+\label{tab:dpy_vs_spc}
+\end{table}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "0.0_main"
+%%% End:

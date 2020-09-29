@@ -1,0 +1,22 @@
+\chapter{Related work}
+\section{Machine learning for model checking}
+\section{Model checking for machine learning}
+\section{Related work}
+% Machine learning-based approaches have been widely explored for Boolean satisfiability (SAT) problems, but has been less studied for satisfiability modulo theories (SMT) problems, which involve more complicated logical reasoning. 
+% Combining neural learning and logical reasoning has been an increasingly popular research direction.
+There has been a number of work studying neural learning for symbolic reasoning. 
+% \cite{Allamanis:icml17} propose deep learning models predicting equivalence of symbolic expressions, 
+Some studied the capability of deep learning models on handling relatively simple symbolic reasoning tasks, such as symbolic expression equivalence~\cite{Allamanis:icml17} or logical entailment~\cite{Evans:iclr18}, which can be easily performed by a symbolic engine like SMT solver. 
+\cite{code2vec} and \cite{ir2vec} focus on learning embeddings of programs using paths over abstract syntax trees or control flows, and the learned embeddings are helpful for suggesting function or variable names. 
+% However, \cite{Nham:nips19} show that such embeddings achieve no significant difference compared with randomly initialized embeddings for symbolic reasoning tasks\xs{Please confirm this claim is a proper message of Nham's work}. 
+% Others extended deep learning models with certain logical reasoning capability~\cite{DeepProbLog}, e.g. performing arithmetic on top of handwriten digits. 
+Our focus is on improving state-of-the-art symbolic engines on non-trivial symbolic reasoning tasks like symbolic model checking. The most relevant work is \cite{Balunovic:nips18}, which predicts a high-level strategy (or configuration) of an SMT solver based on \textit{static} statistics of a verification instance. 
+In contrast, our approach learns from \textit{dynamic} runs and provides guidance for decisions in a finer granularity. 
+Two other related work are \cite{He:pldi20} and \cite{Si:nips18}.
+The former also uses deep learning to guide numerical analysis, where the soundness is not a concern as imperfect prediction results in less precise (but still acceptable) numerical approximations.
+Like our problem, the latter also faces the soundness issue and proposes an end-to-end reinforcement learning based approach, which however suffers from scalability issues.
+% Another focus of our work is on the efficient integration between a learning component and a logical reasoning engine, since the goal is to outperform state-of-the-art solvers, engineering efficiency does become a challenge. 
+% In this perspective, our implementation is inspired by \cite{Nham:nips19}.
+% \citep{Allamanis:icml17} propose deep learning models 
+% deep coder
+% Shallow symbolic reasoning to improve percetual input data, adding up of handwriten digits. 

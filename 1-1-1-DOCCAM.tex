@@ -1,0 +1,99 @@
+\section{Compiler Optimization using Reinforcement Learning}
+In the compiler optimization domain, we introduce \doccam, a reinforcement-learning--based software debloating tool. 
+% The rapid increase of software productivity in the last decades was fueled by the
+% extensive use of abstraction and reuse of software components. While this
+% enabled building larger and more complex software systems, these gains came at
+% the expense of less efficient and less secure software systems, and contribute
+% to a troublesome trade-off between productivity and performance/security. When
+% an application built using general-purpose components is deployed, the majority
+% of the general-purpose functionality is never used. This creates two problems:
+% first, as the use of abstraction layers makes it more difficult to optimize the
+% software, this has a detrimental impact on performance; second, it increases the
+% attack surface for security vulnerabilities.
+
+A \emph{Software Debloater} solves a specific problem: given the known running environment, can we remove as much unused code (\emph{debloat}) in the compiled executables and binaries as possible? A motivating example is the frequently used tool \texttt{ls}. \texttt{ls} has more than 40 arguments, yet for many people, \texttt{ls -lath} covers most of the use-cases. By removing code of the rest of \texttt{ls}'s arguments, a software debloater hopes to create a smaller, and safer \texttt{ls}.
+
+% Ashish: While OCCAM, Trimmer, (and Chisel, via tests that the delta-debugged version must pass) specialize the application to its deployment context, other debloaters, such as Piece-wise, do not.
+% An emerging solution to this problem is a set of tools, called \emph{Software
+%   Debloaters}, that automatically customize a program to a user-specified
+% environment. 
+
+One successful approach for software debloating is based on partial
+evaluation (PE)~\cite{pe-book} in which a \emph{partial evaluator} takes a
+program and its known input values and produces a \emph{residual}
+(or \emph{specialized}) program in which those inputs are replaced with constants.
+%
+% AG: not sure why soundness is important at this point of intro
+% A sound partial evaluator must ensure that running the residual program on the
+% remaining inputs always produces the same result as running the original
+% program on all of its inputs.
+%
+While PE has been extensively applied to functional and logic programs, it was
+less successful on imperative C/\cpp programs (with a noteable exception of
+\cmix~\cite{Andersen94} and \tempo~\cite{Consel98}). With the advent of
+\llvm~\cite{llvm}, several new partial evaluators of LLVM bitcode have arisen
+during the last few years (e.g., \llpe~\cite{llpe}, \occam~\cite{occam}, and
+\trimmer~\cite{trimmer}). These tools leverage \llvm optimizations such as
+constant propagation, function inlining, and others to either reduce the size of
+the residual program (e.g., \occam and \trimmer) or improve performance (e.g.,
+\llpe).
+
+The key step of a PE-based debloater is to estimate whether specializing (or
+inlining) a function will result in a smaller (or more secure) residual program.
+%Unfortunately, as with most problems in program analysis, this is very difficult.
+Specialization naturally increases the size of the code since it adds extra
+functions. However, since some inputs in the new functions have been replaced by
+constant values, optimizations such as constant propagation, might become
+enabled and result in new optimization opportunities that reduce the code size.
+Therefore, the decision whether or not a function should be specialized for a
+particular call-site is non-trivial. % where the solution must be found
+% in a large search space that represents the effects of other specialized call
+% sites and all LLVM optimizations applied after those specializations.
+% Current PE-based software debloaters use naive heuristics. For example, \occam
+% implements two heuristics of ``never specialize'' or ``always specialize'',
+% respectively; \trimmer specializes a function only if it is called once in the
+% whole program. 
+
+% In this thesis, we present a new approach based on reinforcement
+% learning (RL) to automatically infer effective heuristics for
+% specializing functions for PE-based software debloating. RL is a natural direction since 
+
+Interestingly, this decision of whether a call-site should be specialized or not resembles a long-horizon Markov Decision Process, which fits nicely into the Reinforcement Learning framework: each decision moves the code (state) from one to another, the decision should depend only on the current state instead of the whole history of transformation, and the quality of the whole process (reward) is only known at the end. 
+
+
+
+% However, representing code as RL state is a 
+
+% RL is a good fit for the problem for two reasons. First, code specialization
+% resembles a Markov Decision Process: each decision moves the code from
+% one state to another, and specialization depends only on the current
+% state rather than the history of the transformations.  Second, the
+% quality of debloating can only be measured after all specialization
+% actions and corresponding compiler optimizations have been
+% performed. % Rendering approaches like
+% supervised-learning inapplicable.
+
+To realize this insight, we need to solve the challenge of deciding on a good state representation.  While it is tempting to use the source code (or LLVM
+intermediate representation (IR)) as a state, this is not
+computationally tractable. The IR is typically hundreds of MBs in
+size. Instead, an adequate set of features that captures meaningful
+information about the code while avoiding state aliasing is
+required. In particular, these features must capture the \emph{calling context}
+in order to distinguish between call-sites. 
+
+% Our finding is presented in \cref{chap:doccam}, in which we makes the following contributions:
+
+In \cref{chap:doccam}, we present a software debloated \doccam, which learns a heuristic for specialization using Reinforcement Learning. Specifically, we make the following contributions: 
+\begin{itemize}
+    \item we propose a set of Calling context features that enable RL to find a useful heuristic for PE-based debloating software;
+    \item we implementation of our method in a software debloater called \doccam;
+    \item we evaluate on the reduction of the
+program size and number of possible code-reuse attacks, by comparing
+our handcrafted features with features learnt automatically via
+embedding LLVM IR into a vector space using \insttovec~\cite{inst2vec}.
+\end{itemize}
+% The main contributions of this paper are threefold: (1) (2) ; and (3) 
+% %
+% Our initial evaluation suggests that RL is a viable method for
+% developing an effective specialization policy for debloating, and learning with
+% handcrafted features is easier than with \insttovec.

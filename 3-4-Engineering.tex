@@ -1,0 +1,85 @@
+\section{\dpy: \spc with \tool}
+\label{sec:intergration}
+\input{figures/algorithm.tex}
+With a positive model $\Mpos$ and a negative model $\Mneg$, we next illustrate the design and implementation of \dpy. 
+% (a) how to use them to guide inductive generalization in a \textit{sound} way; (b) how to realize a neuro-symbolic system \textit{efficiently}.
+
+%  Recall that our goal is to improve the \textsc{IterDrop} using \tool as a neural-symbolic guidance. Given the networks $\Mpos$ and $\Mneg$ from \cref{sec:learning-signal}, we still need to solve (a) the logical challenge: how to construct a lemma using results computed by $\Mpos$ and $\Mneg$, and (b) the technical challenge: how to effectively integrate our Python-based neural component with the solver written in \mbox{C++}.
+
+% There are multiple ways to construct a lemma from the results produced by $\Mpos$ and $\Mneg$. 
+% \NL{claim something great}We propose here one particular heuristic and our reasoning behind it, without making any claim about other possible heuristics.
+\paragraph{Inductive generalization with $\Mpos$ and $\Mneg$.}
+\dpy uses $\Mpos$ and $\Mneg$ to guide \textsc{IterDrop}, resulting in a new algorithm named \tool (shown in \cref{alg:qdrop}). The key differences of \tool from \textsc{IterDrop} are highlighted in blue.
+Instead of iteratively checking if each literal should be kept or dropped, \tool makes a more aggressive decision -- keep and drop many at once (line \ref{line:deltaK}-\ref{line:deltaC}).
+
+Given that deep learning models could make arbitrary predictions, special care need to be taken in order to preserve soundness. Line \ref{line:def:kept-lits} makes sure that the initial set of kept literals is not empty. The \texttt{initKeep} can be a process similar to \textsc{IterDrop} except for terminating immediately when the first literal to keep is found. Lines \ref{line:emptyCheck} and \ref{line:inductiveCheck} assure that the aggressive decisions by the algorithm always result in a valid generalization; otherwise, a fallback mechanism is triggered. 
+In the worst case, \tool should be effectively the same as \textsc{IterDrop}.
+More formally, we have the following important yet straightforward theorem. 
+% Same as in \textsc{IterDrop}, \tool maintains two set of literals: $K$ -- the set of literals that has been checked and kept, and $C$ -- the set of literals that hasn't been checked. $K$ is initialized by running $\textsc{IterDrop}$ until $|K|>=1$, and $C$ is initialized as the original lemma (lines~1 and~2 in \cref{alg:qdrop}). \tool terminates when $C$ is empty.
+
+% Our insight is that it is always sound to keep a literal, but not to drop one. Furthermore, inductive check is expensive. Thus, we want to priotizing keeping literals with $\Mpos$. Concretely, because it is possible that for a pair of literals $(\lit_i, \lit_j)$ in which $\lit_i$ is kept, $\Mpos$ suggests keeping $\lit_j$, while $\Mneg$ suggests dropping it, we run $\Mpos$ \emph{first} and remove all literals that are likely to be kept from $C$, forcing $\Mneg$ to check only literals that $\Mpos$ already consideres unlikely to be kept.
+
+% \cref{alg:qdrop} outlines how $\Mpos$ and $\Mneg$ are used: first $\Mpos$ is used to create the set $\Delta K$ of literals that has high co-occurrence with \emph{any} literal in $K$. Thus, these literals are  likely to also be in the generalized lemma (line~4). Those literals in $\Delta K$ are also removed from $C$ \emph{before} running $\Mneg$ (line~5). $\Mneg$ then proceed to create the set $\Delta C$ of literals that has high anti-occurrence with \emph{any} literal in $K \cup \Delta K$. Finally, \tool produces and checks the inductiveness for a candidate lemma $\ell_{\text{cand}} = \{K \cup C \cup \Delta K \setminus \Delta C\}$ (line~$9$). If $\ell_{\text{cand}}$ is still inductive,  $K$ and $C$ are updated (lines~$10$--$11$).
+\begin{theorem}
+\tool is sound and terminating.
+\end{theorem}
+%\begin{proof}
+%The inductive check guarantees \tool's soundness.
+%\end{proof}
+%\begin{theorem}
+%\tool always terminates.
+%\end{theorem}
+%\begin{proof}
+%  There are two cases where \cref{alg:qdrop} does not make progress: (1) when
+%  $\Delta K = \Delta C = \emptyset$, and (2) when the candidate lemma fails the
+%  inductiveness check. In both cases, the algorithm simply run the
+%  \texttt{dropOne} function to get new $K$ and $C$ (lines~$7$~and~$13$). This
+%  fallback mechanism guarantees termination, since \texttt{dropOne} always
+%  return a smaller $C$ (line~$9$~and~$12$ in \cref{alg:iter_drop}).
+%\end{proof}
+
+\input{fig_times.tex}
+
+% Note that the size of $K$ is a parameter that we can tune: a smaller $K$ means a smaller seeding process, while a bigger $K$ means the candidate lemma will more likely to be $\indf$, thus reducing the number of retries.
+% \paragraph{Neural-symbolic intergration.}
+% \tool training and inferencing are implemented in Python using PyTorch \cite{pytorch}. \spc, like most industry Model Checkers, is implemented in C++, creating a gap that needs to be addressed. We implement a client-server architecture in which \tool is wrapped in a gRPC server connects to a gRPC client inside \spc. This architecture hits a sweet spot between the ease of implementation and performance: it is possible, but much harder, to implement \tool using PyTorch's C++ binding. Alternatively, connecting \tool with \spc through a file-based architecture is easy, but creates large IO overhead.
+\input{N_vs_P_vs_D.tex}
+\input{tab1.tex}
+
+\paragraph{Implementation and optimizations.}
+\tool is implemented in Python using PyTorch \cite{pytorch}, while \spc is implemented in C++. 
+The communication overhead between these two could diminish the performance gain by fast inductive generation, creating an engineering challenge.  
+Simply exchanging information via file IO is too expensive.
+Instead, we implement a client-server architecture in which \tool is wrapped in a gRPC server connects to a gRPC client inside \spc.
+As communicating and parsing over gRPC dominates the overhead, we explore further optimizations. 
+
+% As detailed in Alg \ref{alg:qdrop}, at runtime, \spc sends over a lemma as a string, a list of literals that was kept, and , which will then be parsed in the server side using PySMT into a list of AST, then fed 
+
+First, we use \emph{caching}. Generalizing a lemma triggers multiple requests to \tool. For each request, \dpy sends over a lemma, the server parses it and runs $\Mneg$ and $\Mpos$.
+Since multiple requests over a period share the same lemma, we can parse it once and cache the result until a flag indicating \tool needs to handle a new lemma.
+
+Second, we use \emph{parallel precomputation}. Instead of invoking $\Mneg$ and $\Mpos$ once for each literal pair, we \emph{precompute} the full co- and anti-occurrence matrices at once, and use them for \emph{all} subsequent requests.
+As long as the matrices fit into the GPU memory, computing the full matrices take the same time as computing one pair of literals.
+
+% To close the performance gap between native \spc and \dpy (\spc + gRPC + \tool), we implement multiple optimizations utilizing as much caching as possible. Recall from the discussion above that \dpy may suggests a wrong lemma candidate, so generalizing one lemma $\ell$ with \dpy may trigger more than one request to \tool. For each request, \spc has to send over a lemma, the server side has to parse it, and we need to run $\Mneg$ and $\Mpos$ to produce the candidate lemma. We want to reduce the number of parsing, and the number of time we need to call the two models.
+% First, we notice that the lemma stays the same for the entire run of \tool, so we can parse it once and cache the result. This optimization also reduces the need for sending over the lemma $\ell$: we only need to send it at the beginning of the run, and only a flag indicating whether \tool has finished or not for the later requests.
+% More importantly, we can \emph{precompute} the full $\Pneg$ and $\Ppos$ matrices for the lemma $\ell$, cache the results, and use them for \emph{all} the subsequent requests. Due to batching, as long as the matrices fit into the GPU memory (our GPU with 4GBs of memory can easily fit two matrices from any lemma in the benchmark during inferencing), computing the full matrices take the same time as computing one pair of literals!
+Together, the two optimizations reduce overhead by up to 50\%. Although gRPC
+communication and parsing still dominates the inference time, empirically it is
+good enough to achieve absolute speedups. 
+
+
+%%THINGS TO APE
+% Combining predictions
+% With our predictions of the criticality a terminalgand oftime saved by removingg, we must make a final decision onwhether or not we should removeg. To do this, we take thetop three terminals with the greatest average positive impacton synthesis time over the training set, as computed withAg. These tended to be terminals that mapped between typeswhich saved more time due to the internal mechanisms andheuristics of the CVC4 solver. We then use the final votingvector from our criticality prediction to choose only two outof the three to remove fromGto formG⋆. We chose to re-move only two terminals fromGin order to minimize thelikelihood of generating aG⋆, such thatπ(G⋆)⊆π(Gcrit).We conjecture that the number of terminals removed is agrammar-dependentparameter that must be selected on a pergrammar basis, just as the number of terminals withAg>0is grammar specific.
+% Falling back to the full grammar
+% There is some danger thatG⋆will, in fact, not be sufficientto synthesize a
+% program. Thus, we propose a strategy that•first, tries to synthesize a program
+% with the grammarG⋆•second, if synthesis withG⋆is unsuccessful, falls back
+% toattempting synthesis with the full grammarG.We determine how long to wait
+% before switching fromG⋆toGby finding anxthat minimizes:
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "0.0_main"
+%%% End:

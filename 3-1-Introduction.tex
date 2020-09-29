@@ -1,0 +1,72 @@
+% \NL{remember to add number to show that inductive generalization is really slow in practice}
+
+\section{Introduction}
+\label{chap:intro}
+
+Model checking has been widely used in various important areas such as robustness analysis of deep neural networks~\cite{Katz:cav19}, verification of hardware designs~\cite{SMC96}, software verification~\cite{Ball02}, analysis~\cite{ESC-java-02} and testing~\cite{Sheyner:SP02}, parameter synthesis in biology~\cite{Barnat:biology12}, and many others. 
+The central challenge of model checking is to find a concise and sound approximation of all possible states a given system may reach, which does not cover any undesired states (i.e. violating given specifications). 
+Tremendous processes have been made by innovations in efficient data representations~\cite{BDD}, scalable SAT solvers~\cite{CDCL,chaff,minisat}, and effective heuristics~\cite{CEGAR,BMC,McMillan:cav06}.  
+Modern model checkers share a common basis, namely, IC3~\cite{IC3}, of which the key insight is \textit{inductive generalization (IG)}.
+This idea has been generalized to support rich theories~\cite{GPDR} that are crucial for many verification tasks~\cite{Komuravelli:cav13,SeaHorn} beyond hardware verification. 
+The generalized IC3 with rich theories, also known as satisfiability checking for Constrained Horn Clauses modulo Theory
+(CHC)~\cite{DBLP:conf/birthday/BjornerGMR15}, becomes the core part of a broad range of verification tasks.
+
+
+% \NL{essentially it is a search problem, and traditionally handcrafted heuristics are used. ML can give better heuristic blabh blah}
+% With deep learning models being applied in many real life application, verifying them is very important, and push traditional model checking methods to its boundary.
+
+Existing IG techniques follow either an enumerative search process \cite{IC3,Bradley:fmcad11} or ad-hoc heuristics \cite{Griggio:CAD16,GSpacer}. 
+Heuristics are effective but may demand non-trivial domain-specific (or even problem-specific) expertise. 
+In this work, we aim to automatically learn such heuristics from the past successful IGs. 
+We observe that verification problems as well as associated IGs are not isolated from each other. 
+Taking software verification as an example, verifying different properties of the same program involves similar or same IGs; different versions of programs have similar code base; and
+different software may use same coding convention, idioms, library or framework, resulting in similar structures.
+
+% One of the reason for its effectiveness is its ability to generalize locally learnt lemmas.
+
+% Can inductive generalization heuristics be automatically learned?
+Our approach is inspired by the recent advances in deep learning, which automatically learn non-trivial patterns from raw pixels~\cite{Krizhevsky:nips12} as well as semantic correlations between natural language texts~\cite{Mikolov:nips13}.
+A natural solution is to train a deep learning model to directly perform IG. 
+However, IG raises many new challenges for deep learning. 
+% symbols, 
+% structured data,
+% semantic reasoning (semantic valid/correct), 
+% soundness,
+% training data.
+First of all, the input and the output of IG are symbolic expressions, which are \textit{highly structured} with \textit{rich semantics}. 
+Slight syntactic variations can lead to dramatic changes in semantics.
+Second, more importantly, IG has to satisfy complicated \textit{semantic constraints}. 
+Third, given deep learning models hardly provide any reliable guarantees, how to design a neuro-symbolic system that exhibits \textit{learnability} from past experiences but still preserves \textit{soundness}?
+% Fourth, how to learn a neural model through a sequence of complicated logical reasoning which are clearly \textit{not differentiable}?
+All these challenges have to be properly addressed in building a neuro-symbolic reasoning framework. 
+In this work, we share our design choices and empirical findings in building a neuro-symbolic engine \dpy, which introduces a neural component into symbolic model checking. 
+Specifically, we make the following contributions: 
+\begin{itemize}
+    % \item we study the performance bottleneck of symbolic model checking and
+    % factor out a component that are suitable for learning from the past runs;
+    \item we adapt standard deep learning models to effectively represent symbolic expressions by incorporating both syntactic and semantic information;
+    \item we design a simple but effective learning objective so that training data can be collected with nearly no changes of existing model checkers; 
+    \item our integration algorithm achieves the soundness by design, and in the worst case, the learning component may only hurt the running time performance; 
+    \item we implement \dpy on top of \spc, a state-of-the-art CHC-solver, using an efficient client-server architecture;
+    \item our empirical evaluations indicate \dpy significantly improves \spc on 
+    challenging benchmarks from \chccomp.
+\end{itemize}
+
+% Given a lemma in cube form C, \spc\ will iterate through its literals and try to drop them one by one. To maintain soundness, \spc\ has to create a new query to ask the underlying SMT-solver(Z3) whether the newly reduced cube is still true. However, solving this query may not be trivial, and if the SMT-solver says that it is not sound to drop a literal, we have wasted the solving time for that query.
+
+% In order to make inductive generalization more effective, we present a mechanism that tries to guess whether a literal should be kept or drop, based on its past correlation and antirelation with other literals in the cube. Using this mechanism, we can significantly reduce the solving time of several hard problems.
+
+
+% Our approach is based on an intuition: if in the past we have observed many times that literal A cannot be dropped if literal B is in the cube, we can skip checking literal A whenever we see literal B in the future. Vice versa, if literal A1, A2, A3 always get dropped given the existance of literal B, we may try to check whether we can drop all 3 at once in the future instead of checking them one by one. If we can generalize said observation using a neural network, we can save a lot of time by asking the underlying solver only important questions.
+
+% We implement our approach ontop of \spc, a state-of-the-art CHC-solver, and evaluate our approach on \chccomp benchmarks and their randomly modified variants. We found that \tool was able to solve blah blah
+
+% \xs{maybe put a simple architecture graph?? like \href{https://arxiv.org/pdf/1802.03685.pdf}{neurosat}, or \href{https://files.sri.inf.ethz.ch/website/papers/pldi20-lait.pdf}{ETH paper} }
+
+% In summary, the core contributions of our work are as follows:
+% \begin{enumerate}
+%     \item A methodology to learn a heuristic for inductive generalization that can speed up overall solving time of CHC problems. In particular, our technique relies on past correlation and antirelation of literals, to predict whether we should immediately keep a literal or try to drop multiple literals at once.
+%     \item A demonstration of the effectiveness of our approach in solving randomly modified instances of \chccomp benchmarks. Our technique reduce the solving time by X\%.
+% \end{enumerate}
+
+

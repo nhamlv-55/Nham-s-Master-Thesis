@@ -1,0 +1,125 @@
+\begin{algorithm2e}[t]
+\DontPrintSemicolon
+\SetKwProg{Fn}{function}{}{end}
+\SetKwFunction{Fdrop}{dropOne}
+\SetKwFunction{Finductive}{isInductive}
+
+\SetKwFunction{Finit}{initKeep}
+\SetKwFunction{Fdnnkeep}{$\Mpos$}
+\SetKwFunction{Fdnndrop}{$\Mneg$}
+
+
+\SetKw{Continue}{continue}  
+
+\KwIn{the original F-inductive lemma $L =\{l_1,l_2,...,l_n\} $ }
+\KwOut{a generalized F-inductive lemma $K \subseteq L $ }
+$K \gets \textcolor{blue}{ \Finit{L}}$ \tcp*[l]{kept literals}  \label{line:def:kept-lits}
+
+$C \gets L $ \tcp*[l]{literals to check}
+
+\While{$C \neq \emptyset$}{
+    \textcolor{blue}{
+    $\Delta K \gets \{ l \ |\  l \in C  \wedge \Fdnnkeep(K, l) \} $
+    } \label{line:deltaK}
+    
+    \textcolor{blue}{
+    $\Delta C \gets \{ l \ |\ l \in C \setminus \Delta K  \wedge \Fdnndrop(K \cup \Delta K , l)  \} $ 
+    } \label{line:deltaC}
+    
+    \uIf{$\Delta K = \Delta C = \emptyset$}{  \label{line:emptyCheck}
+        $K,C \gets \Fdrop{K,C}$
+    }
+    \Else{
+        \uIf{$\Finductive(K \cup C \cup \Delta K \setminus \Delta C)$}{  \label{line:inductiveCheck}
+            \textcolor{blue}{
+            $K \gets K \cup \Delta K  $
+            } \label{line:updateK}
+            
+            \textcolor{blue}{
+            $C \gets C \setminus \Delta C \setminus \Delta K $
+            } \label{line:updateC}
+        }
+        \Else{
+            $K,C \gets \Fdrop{K,C}$
+        }
+    }
+    
+}
+\Return $K$
+\caption{\textsc{QuickDrop} algorithm.}
+\label{alg:qdrop}
+\end{algorithm2e}
+% \input{LaTeX/figures/neuralKeepDrop}
+% \begin{figure}
+%   \begin{algorithm2e}[H]
+%     \DontPrintSemicolon
+%     $(E^+, E^-) \gets (\emptyset, \emptyset)$
+    
+%     $\overline{\bf P} \gets \emph{MostGeneral}() $
+    
+%     $\underline{\bf P} \gets \emph{MostSpecific}() $
+
+% 	\While{true}{
+% 	  $ {\bf P} \gets \overline{\bf P} \cup \underline{\bf P}$ \tcp*[l]{construct committee}
+	  
+% 	  \lIf{$\forall e \in \hbase \ldotp D(e,\bs{P}) = 0$}{\Return ${\bf P}$}
+	  
+% 	  $e^\star \gets \operatorname{argmax}_{e\in \hbase} D(e,\bs{P})$ \tcp*[l]{most controversial example}
+	  
+% 	  $\diamond \gets \oracle(e^\star) $ \tcp*[l]{where $\diamond \in \{+,-\}$}
+	  
+% 	  $E^\diamond \gets E^\diamond \cup \{e^\star\} $
+	  
+% 	  $\overline{\bf P} \gets F^\downarrow(\overline{\bf P}, E^+,E^-) $ \tcp*[l]{top-down refinement}
+	  
+% 	  $\underline{\bf P} \gets F^\uparrow(\underline{\bf P}, E^+,E^-) $ \tcp*[l]{bottom-up refinement}
+% 	}
+	
+%     \caption{The \alps synthesis algorithm}
+%     \label{alg:alps}
+%   \end{algorithm2e}
+% \end{figure}
+
+% \begin{figure}
+% 	\begin{algorithm2e}[H]
+% 	  \caption{Meta-rule-guided refinement} \label{alg:refinement}
+	  
+% 	  \SetKwFunction{Fdown}{$F^\downarrow$}
+% 	  \SetKwFunction{Fup}{$F^\uparrow$}
+% 	  \SetKwProg{Fn}{Function}{}{end}
+	
+% %	  \setcounter{AlgoLine}{-1}
+% 	  \Fn{\Fdown{$\overline{\bf P}, E^+, E^-$}}{
+% 	    $E \gets (E^+, E^-) $
+	    
+% 	    \While{$\underline{\bf P} \not\subseteq \vs{E}$}{\label{line:cond}
+% 	      $ \Delta \underline{\bf P} \gets (\underline{\bf P} \cap \vs{E^-}) \backslash \vs{E^+}$\label{line:refinep1}
+	      
+% 	      $ \Delta \underline{\bf P} \!\gets\! \generalize(\Delta \underline{\bf P}, {\bf T}) \cap \vs{E^-} $\label{line:refinep2}
+	      
+% 	      $ \underline{\bf P} \gets (\underline{\bf P} \cap \vs{E}) \cup \Delta \underline{\bf P} $\label{line:expandp}
+% 	    }
+% 	    \Return $\underline{\bf P} $\label{line:finish}
+% 	  }
+	  
+% 	  \vspace{8pt}
+% 	  \Fn{ \Fup{$\underline{\bf P}, E^+, E^-$} }{
+% 	    $E \gets (E^+, E^-) $
+	    
+% 	    \While{$\underline{\bf P} \not\subseteq \vs{E}$}{
+% 	       $ \Delta \underline{\bf P} \gets (\underline{\bf P} \cap \vs{E^-}) \backslash \vs{E^+}$
+	       
+% 	       $ \Delta \underline{\bf P} \!\gets\! \generalize(\Delta \underline{\bf P}, {\bf T}) \cap \vs{E^-} $
+	       
+% 	       $ \underline{\bf P} \gets (\underline{\bf P} \cap \vs{E}) \cup \Delta \underline{\bf P} $
+% 	    }
+% 	    \Return $\underline{\bf P} $
+% 	  }
+	  
+% 	\end{algorithm2e}
+% \end{figure}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../0.0_main"
+%%% End:

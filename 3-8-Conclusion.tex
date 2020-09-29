@@ -1,0 +1,8 @@
+\section{Conclusion}
+\label{sec:2-conclusion}
+ We proposed a neuro-symbolic system, \dpy, which uses deep learning models to improve symbolic model checking.
+ \dpy uses a positive and a negative model to approximate co- and anti-occurrences of literals appeared in past inductive generalizations.
+ The logical and neural component of \dpy are implemented as an efficient gRPC client-server architecture.
+ Our empirical evaluation on \chccomp indicates significant improvements of \dpy over the state-of-the-art SMC engine, \spc: inductive generalization is $3.26\times$ faster, and total solving time is $1.51\times$ faster. To the best of our knowledge, \dpy is the first neural-symbolic SMC guidance that works well in practice. We open source the code and welcome contributors to contribute, improve and extend \dpy.
+
+This chapter is adapted from our collaboration with Dr.Xujie Si, and is currently under submission.

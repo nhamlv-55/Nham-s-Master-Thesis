@@ -1,0 +1,11 @@
+\chapter{Conclusion}
+\label{chap:conclusion}
+This thesis presents a glimpse into the feasibility of learning state-of-the-art heuristics for symbolic reasoning tasks, specifically, inductive generalization and software debloating, using neural networks.
+
+For inductive generalization, we proposed a neuro-symbolic system, \dpy, which uses a positive and a negative model to approximate co- and anti-occurrences of literals that appeared in past inductive generalizations to improve the overall symbolic model checking process.
+For software debloating, we present \doccam --- an end-to-end tool to learn
+specialization heuristics using Reinforcement Learning.
+
+In both cases, our results show that the learned heuristics are better than state-of-the-art handcrafted ones, even when we take into account the communication costs between our neural components in Python and our symbolic engine in C++, in the case of \dpy. To the best of our knowledge, they are both the first neural-symbolic guidance that works well in practice for their tasks.
+
+Looking forward, we want to extend the work presented in this thesis to make it more useful, by trying to learn a better representation for the formulas and LLVM IRs, as well as trying to make the learned heuristics transferable to different problems in the same task. 

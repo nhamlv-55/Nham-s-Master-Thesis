@@ -1,0 +1,43 @@
+% \setlength{\textfloatsep}{0pt}% Remove \textfloatsep
+\begin{algorithm2e}[t]
+\DontPrintSemicolon
+\SetKwProg{Fn}{function}{}{end}
+
+\SetKwFunction{Fdrop}{dropOne}
+\SetKwFunction{Finductive}{isInductive}
+\SetKwFunction{Fpick}{pick}
+
+
+\KwIn{the original F-inductive lemma $L =\{l_1, l_2, ...,l_n\} $ }
+\KwOut{a generalized F-inductive lemma $K \subseteq L $ }
+$K \gets \emptyset $ \tcp*[l]{kept literals}  \label{line:spc-kept-lits}
+$C \gets L $ \tcp*[l]{literals to check}
+
+\While{$C \neq \emptyset  $}{
+    $K,C \gets \Fdrop{K,C}$
+}
+
+\Return K
+ 
+\vspace{4pt}
+
+\Fn{\Fdrop{K, C}}{
+    $lit \gets pick(C)$
+    
+    \uIf{ $\Finductive(K \cup\ C \setminus \{lit\})$} {
+        $C \gets C \setminus \{lit\}$
+    }
+    \Else{
+        $ K \gets K \cup \{lit\} $ ; %
+        $C \gets C \setminus \{lit\}$
+    }
+    \Return $K, C$
+}
+\caption{\textsc{IterDrop} algorithm.}
+\label{alg:iter_drop}
+\end{algorithm2e}    
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../0.0_main"
+%%% End:

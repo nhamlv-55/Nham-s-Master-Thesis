@@ -1,0 +1,98 @@
+\section{Software debloating}
+This section present needed domain background for \cref{chap:doccam}, which is software debloating using partial evaluation.
+\paragraph{The software debloating problem.} Given a problem $\cP$ that has a set of functionalities $F = \{F_0, F_1, \dots, F_N\}$ and a user-specified subset of necessary functionalities $F_{spec} = \{F_i, F_j, \dots, F_k\}$, the goal of a software debloater is to produce a new program $\cP'$ that retains $F_{spec}$ and \emph{gracefully} refuses any functionalities in $F \setminus F_{spec}$.
+\begin{figure}[t]
+\begin{lstlisting}[language=Python]
+parser = argparse.ArgumentParser()
+parser.add_argument('-P', '--p-model-path', 
+                    help='path to the .pt file of the model')
+parser.add_argument('-F', '--fallback-mode', action='store_true', 
+                    help='whether to run in fallback mode')
+args = parser.parse_args()
+def main():
+    fallback_mode = args.fallback_mode
+    
+    if fallback_mode:
+        server_config={
+            "p_model": None,
+            "fallback_mode": args.fallback_mode
+        }
+    else:
+        p_model = setup_model(args.p_model_path)
+        server_config={
+            "p_model": p_model,
+            "fallback_mode": args.fallback_mode
+        }
+        
+    serve(server_config)
+main()
+\end{lstlisting}
+    \caption{A bloated server \texttt{server.py}.}
+    \label{fig:bloated_exp}
+\end{figure}
+
+\begin{figure}
+    \begin{lstlisting}[language=Python]
+{
+    "main" : "server.py",
+    "args" : ["-F"]
+}
+    \end{lstlisting}
+    \caption{A specification file \texttt{spec.json} for \texttt{server.py}.}
+    \label{fig:server_spec}
+\end{figure}
+
+\begin{figure}[t]
+\begin{lstlisting}[language=Python]
+parser = argparse.ArgumentParser()
+parser.add_argument('-P', '--p-model-path', 
+                    help='path to the .pt file of the model')
+parser.add_argument('-F', '--fallback-mode', action='store_true', 
+                    help='whether to run in fallback mode')
+args = parser.parse_args()
+def main():
+    '''
+    The original code for main
+    '''
+    ...
+
+def main_specialized():
+    fallback_mode = True
+    server_config={
+        "p_model": None,
+        "fallback_mode": True
+    }
+    serve(server_config)
+main_specialized()
+\end{lstlisting}
+    \caption{A debloated version of \texttt{server.py} with respect to \texttt{spec.json}.}
+    \label{fig:software_debloated_exp}
+\end{figure}
+The Python server in \cref{fig:bloated_exp} has two modes: a fallback mode that doesn't require a trained neural network, and a normal mode that requires one. Given the specification in \cref{fig:server_spec}, in which user requires only the first functionality, one possible debloated version of the server is given in \cref{fig:software_debloated_exp}. Note that even though line 19 to 24 in \cref{fig:bloated_exp} are still in \cref{fig:software_debloated_exp}, it cannot be triggered, because the \texttt{main} function is not called. Remember that according to our problem definition, a debloated program is only about reducing functionalities, and the code itself could actually be more ``bloated''.
+
+There are many ways to achieve the debloating goal, such as source-code optimization \cite{chisel}, binary optimization \cite{trimmer}, or compile-time optimization \cite{occam}. In this thesis, our focus is compile-time optimization, inspired by \occam \cite{occam}. Specifically, \occam's partial evaluator.
+
+\paragraph{Partial evaluator.}
+A \emph{partial evaluator} takes a program and some of its input values and produces a \emph{specialized} program in which those inputs are replaced with their values. In \cref{fig:software_debloated_exp}, \texttt{main\_specialized} is that specialized version of \texttt{main}.
+
+
+
+%
+% AG: not sure why soundness is important at this point of intro
+% A sound partial evaluator must ensure that running the residual program on the
+% remaining inputs always produces the same result as running the original
+% program on all of its inputs.
+%
+While PE has been extensively applied to functional and logic programs, it was
+less successful on imperative C/\cpp programs (with a noteable exception of
+\cmix~\cite{Andersen94} and \tempo~\cite{Consel98}). With the advent of
+\llvm~\cite{llvm}, several new partial evaluators of LLVM bitcode have arisen
+during the last few years (e.g., \llpe~\cite{llpe}, \occam~\cite{occam}, and
+\trimmer~\cite{trimmer}). These tools leverage LLVM optimizations such as
+constant propagation, function inlining, and others to either reduce the size of
+the residual program (e.g., \occam and \trimmer) or improve performance (e.g.,
+\llpe).
+
+The key step of a PE-based debloater is to estimate whether specializing a function will result in a smaller (or more secure) final binary or library.
+%Unfortunately, as with most problems in program analysis, this is very difficult.
+As we can see in \cref{fig:software_debloated_exp}, specialization naturally increases the size of the code since it adds extra copies of functions into the code. However, since some inputs in the new functions have been replaced by constant values, optimizations such as constant propagation, might become enabled and result in new optimization opportunities in subsequent optimization passes. Therefore, the decision whether or not a function should be specialized for a particular call-site is non-trivial.
