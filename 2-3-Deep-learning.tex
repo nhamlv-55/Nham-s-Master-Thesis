@@ -79,7 +79,7 @@ But in some cases, the whole paradigm just doesn't work, and requires a
 different paradigm altogether. 
 
 
-\subsection{Recurrent-neural network. Tree LSTM}
+\subsection{Recurrent-neural network. Tree LSTM.}
 In many tasks, we need to process inputs of arbitrary length, to predict outputs also of arbitrary length (often called \emph{sequence-to-sequence} problems). There are multiple ways to make sequential inputs to work in the fixed-size paradigm, such as \emph{padding} (add dummy values to the inputs to make sure they are all of the same length), \emph{same length batching} (sort inputs by size and process inputs of the same size together), among others. However, those approaches doesn't help with handling sequential outputs. A better approach is \emph{recurrent neural networks} (RNNs). An RNN defines a function
 \begin{align}
 \vect{h}^t = f(\vect{h}^{t-1}, \vect{x}^{t})
@@ -132,9 +132,59 @@ Intuitively, TreeLSTM incorporates the \emph{summation} of outputs of children
 (\cref{eq:summation}) into the computation of the parent node
 (in \cref{eq:tree-lstm-update-i} to \cref{eq:tree-lstm-update-a}, TreeLSTM uses
 $\vs$ instead of $\vh$ as in vanilla LSTM), which enforces the tree structure.
+Note that TreeLSTM is a generalized version of vanilla LSTM: if each node has exactly one child, we get the same equations as in
+vanilla LSTM.
 %% Recurrent neural networks (RNNs) are widely used in natural language processingtasks, especially speech recognition and machine translation. The primary goal ofRNNs is to approximate the mapping from a sequence of inputsx(1),...,x(t)to eithera single outputyor a sequence of outputsy(1),...,y(t). An RNN defines a mappingh(t)=f(h(t−1),x(t);θ)(2.2)whereh(t)is the hidden state, from which the final outputy(t)can be computed byeither a non-linear transformation or an MLP.11
 %% Popular RNN models.A simple RNN model can be. The key issue of such a simple form is that the long-termdependencies are hard to capture, which makes training extremely difficult. Toaddress this issue, a commonly used RNN model is the long short-term memorynetwork (LSTM) [89], which introduces amemory cell with various gatesto preservestate over a long sequence.LSTM maintains two states — the original hidden state and a newly introducedcontextstate (or memory cell). At a high level, LSTM defines a mapping functionas follows:h(t),c(t)=f(h(t−1),c(t−1),x(t);θ)(2.4)whereh(t)is the hidden state andc(t)is the context state. These two states areupdated by three gates — input gatei(t), forget gatef(t)and output gateo(t)asfollows:i(t)=σ(Wix(t)+Uih(t−1)+bi)f(t)=σ(Wfx(t)+Ufh(t−1)+bf)o(t)=σ(Wox(t)+Uoh(t−1)+bo)u(t)=tanh(Wux(t)+Uuh(t−1)+bu)c(t)=i(t)u(t)+f(t)c(t−1)h(t)=o(t)tanh(c(t))(2.5)whereθ=  [Wi,Ui,bi,Wf,Uf,bf,Wo,Uo,bo,Wu,Uu,bu],σis the sigmoid function,andis the element-wise product.Two common variants of LSTM are gated recurrent units (GRUs) [41] and tree-structured LSTM (Tree-LSTM) [177]. The former simplifies gates of LSTM for effi-ciency while the latter extends the modeling ability to tree structures.12
 
 \subsection{Reinforcement learning}
 % In many tasks, the learning goal is beyond predicting some predefined label for a given input. Instead, the learning goal is to reach some beneficial state after a se- quence of actions following a set of rules from some initial state. Thus, what is really learned is a policy, which predicts an action given a state and the action is ideally optimal towards the ultimate beneficial state. Reinforcement learning is a system- atic methodology of solving this exact problem and has achieved remarkable suc- cesses in many challenging problems, particularly games. Prominent examples are strategical games like Chess [93] and Go [166], and video games like Atari [124], StarCraft [179], and Dota [132].
-In many tasks, a dataset of input-output pairs $(\vec{x}, y)$ is too expensive, or even impossible to obtain: imagine having to label all the best moves for half of the number of all possible chess boards! More importantly, in many cases, we do not really need one single correct output, but many possible outputs are equally good, as long as their cumulative effects are the same: as long as we reach the destination in time, it doesn't really matter whether our speed at time $t$ is 40 or 50 km/h. To solve those two problems, we need to have a learning paradigm that optimizes for a global \emph{goal}, while collecting the data all by itself. \emph{Reinforcement learning} is such a paradigm, and has achieved remarkable successes in many difficult tasks, such as Robotics \cite{convai} or playing board games \cite{td-gammon, alphago}.
+In many tasks, a dataset of input-output pairs $(\vec{x}, y)$ is too expensive,
+or even impossible to obtain: imagine having to label all the best moves for
+half of the number of all possible chess boards! More importantly, in many
+cases, we do not really need one single correct output, but many possible
+outputs are equally good, as long as their cumulative effects are the same: as
+long as we reach the destination in time, it doesn't really matter whether our
+speed at time $t$ is 40 or 50 km/h. To solve those two problems, we need to have
+a learning paradigm that optimizes for a global \emph{goal}, while collecting
+the data all by itself. \emph{Reinforcement learning} is such a paradigm, and
+has achieved remarkable successes in many difficult tasks, such as Robotics
+\cite{convai} or playing board games \cite{td-gammon, alphago}.
+
+\paragraph{Markov Decision Process.} A standard formulation of RL is using
+Markov decision process (MDP):
+\begin{itemize}
+  \item A set of states $S$;
+  \item a set of actions $A$;
+  \item $P_a{s, s'} = Pr(s_{t+1} = s' \mid s_t = s, a_t = a)$ is the probability
+    a state $s$ will transit to another state $s'$, by taking the action $a$;
+  \item $R_a{s, s'}$ is the reward \emph{after} transition from $s$ to $s'$ by
+    taking the action $a$.  
+\end{itemize}
+At each time step $t$, the system interacts with its environment and receives
+the current state $s_t$ and the immediate reward $r_t$. The goal of RL is to
+learn a policy $\pi: A \times S \mapsto [0, 1], \pi(a, s) = Pr(a_t=a|s_t=s)$
+that defines the probability of taking an action $a$ when in state $s$. Note
+that in this thesis, we only care about finite state spaces (discrete actions).
+There is also continuous state spaces, i.e predicting the
+optimal speed at each time step. We want $\pi$ to maximize the expected
+cumulative reward. In our setting, where $P$ is deterministic (taking one action
+will result in only one possible new state), the cumulative
+reward is defined as:
+\begin{align}
+  E = \sum_{t=0}^{T-1}{R_{a_t}(s_t, s_{t+1})}
+\end{align}
+where $T$ could be $\infty$ if necessary.
+
+The dilemma of RL lies in the fact that we often do not have access to the true
+reward function $R$ (if we do, we can simply sample many tuple $(s, a,
+R_a(s))$ and learn it in a supervised manner), only the final reward at the
+end of the execution of the policy, but in practice RL cannot be trained without
+intermediate feed backs. For example, imagine if we can only train a Chess RL agent if the
+only reward is a binary signal at the end! Hence, a big part of RL research is
+about crafting adequate \emph{proxy rewards}, that tells the agent how well
+it currently performing. One can directly craft the proxies using domain
+knowledge, such as assigning scores for board configurations in Chess, or use
+best-so-far random policy as the target (e.g Policy Gradient \cite{reinforce}), or learn the reward
+function for a state-action pair instead of the reward for just the state
+(e.g Deep-Q learning \cite{deepq}).
