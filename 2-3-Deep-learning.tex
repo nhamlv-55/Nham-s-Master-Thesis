@@ -1,43 +1,99 @@
 \section{Deep learning}
-\subsection{Perceptron. Multi-layer Perceptron. The fixed-size computing paradigm.}
-There are already too many technical texts about the mathematical behind Perceptron and Multi-layer Perceptron. In this section, we will take a pictorial look at it, starting from matrix multiplication.
-
-\paragraph{Perceptron} is defined as a function that maps its input $\vect{x}$
-(a real-valued vector) to an output value $y$(a single binary value):
-\begin{align}
-  y = \vect{W} \times \vect{x} + \text{bias}
-\end{align}
-
+This section introduces deep neural networks, recurrent neural networks, and
+reinforcement learning. They are the machine learning tools that we use in
+\cref{chap:dopey} and \cref{chap:doccam}.
 \begin{figure*}[t]
   \centering
-  \begin{subfigure}[t]{0.45\textwidth}
+  \begin{subfigure}[t]{0.35\textwidth}
     \includegraphics[width=0.99\textwidth]{figures/matmul.pdf}
     \caption{Matrix multiplication.}
     \label{fig:matmul}
 	\end{subfigure}
-	\begin{subfigure}[t]{0.45\textwidth}
+	\begin{subfigure}[t]{0.35\textwidth}
     \includegraphics[width=0.99\textwidth]{figures/perceptron.pdf}
     \caption{A perceptron}
     \label{fig:perceptron}
 	\end{subfigure}
-	\begin{subfigure}[b]{0.9\textwidth}
+	\begin{subfigure}[b]{0.7\textwidth}
     \includegraphics[width=0.99\textwidth]{figures/deep_matmul.pdf}
     \caption{Multi-layer Perceptron, viewed as a series of matrix transformation.}
     \label{fig:deep_matmul}
 	\end{subfigure}
-
-
-  \caption{Visualization of matrix multiplication, perceptron, and multi-layer perceptron.}
-  % \label{fig:vis_ind_gen}
+	\begin{subfigure}[b]{0.7\textwidth}
+    \includegraphics[width=0.99\textwidth]{figures/RNN.pdf}
+    \caption{Recurrent neural network}
+    \label{fig:rnn}
+	\end{subfigure}  \caption{Visualization of matrix multiplication, perceptron,
+    multi-layer perceptron, and recurrent neural network.}
 \end{figure*}
+\subsection{Perceptron. Multi-layer Perceptron. The fixed-size computing paradigm.}
+There are already too many technical texts about the mathematical behind
+Perceptron and Multi-layer Perceptron. In this section, we will take a pictorial
+look at it, starting from matrix multiplication. Multiplying two matrices of
+size $m \times n$ and $n \times p$ could be visualized as in \cref{fig:matmul},
+which resulted in a new matrix of size $m \times p$.
+
+\paragraph{Perceptron} is defined as a function that maps its input $\vect{x}$
+(a real-valued vector) to an output value $y$ (a single binary value). While
+there are many ways to define the mapping, in practice the perceptron function is
+\begin{align*}
+  y =  \twopartdef { 1 } {\vect{x} \times \vect{W} + \text{bias} > 0} 
+                   { 0 } {\text{otherwise}}
+\end{align*}
+\cref{fig:perceptron} visualizes the perceptron function. In case of having to
+classify $k$ classes ($k>2$), a one-vs-all scheme is used: learn $k$ separated
+perceptron, each perceptron $p_i$ predicts whether $\vect(x)$ is of the class
+$i^{th}$.
+
+In the early 60s, it is believed that Single-layer perceptron was all we needed to learn
+(approximate) any function. In 1969, Minsky and Papert \cite{perceptrons} proved
+that a single perceptron cannot learn the simple XOR function, since XOR is not
+\emph{linear separable}. There work effectively froze AI research for about ten years.
+
+The solution for the XOR function, as it turned out, was very simple:
+Multi-layer Perceptrons.
+
+\paragraph{Multi-layer Perceptron.} To understand Multi-layer Perceptron, let's
+take a step back and look at what a Single-layer Perceptron does: it computes a linear
+transformation of the input ($\vect{x} \times \vect{W} + \text{bias}$), then
+applies a non-linear filter (activation function) over the results (a branching function). The key
+insight is that the result is also a matrix, hence can be feed into another
+perceptron, which in total, make a non-linear function! In fact, it is proven \cite{universal}
+that under certain assumptions, 2 layer perceptrons is enough to approximate arbitrary
+functions!
+
+\cref{fig:deep_matmul} visualizes a multi-layer perceptron. Looking at the
+figure, it is also clear why it is also called \emph{Deep learning}. The goal of
+Deep learning, is that given a fixed architecture and non-linear activation
+functions, how do we learn the matrices in between the input and the output. In practice, the
+non-linear functions could be $tanh$, $ReLU$, $sigmoid$, among others.
+
+
+
+\paragraph{The fixed-size computing paradigm.} Multi-layer perceptrons are
+great, and could be used to approximate many functions. But it also forces
+things to be in the same shape: once the architecture is fixed, all the matrices
+in between are also fixed in shape, so all inputs have to have the same shape,
+and all outputs also have to have the same shape as well. For many cases, this
+is not a big problem: image could be resized into a fixed size, missing
+values in an input vector could always be set to a dummy values, for examples.
+But in some cases, the whole paradigm just doesn't work, and requires a
+different paradigm altogether. 
+
+
 \subsection{Recurrent-neural network. Tree LSTM}
 In many tasks, we need to process inputs of arbitrary length, to predict outputs also of arbitrary length (often called \emph{sequence-to-sequence} problems). There are multiple ways to make sequential inputs to work in the fixed-size paradigm, such as \emph{padding} (add dummy values to the inputs to make sure they are all of the same length), \emph{same length batching} (sort inputs by size and process inputs of the same size together), among others. However, those approaches doesn't help with handling sequential outputs. A better approach is \emph{recurrent neural networks} (RNNs). An RNN defines a function
 \begin{align}
 \vect{h}^t = f(\vect{h}^{t-1}, \vect{x}^{t})
 \end{align}
-in which $f$ is our matrix transformation. 
+in which $f$ is our linear transformation, followed by a non-linear filter. A
+typical RNN can be
+\begin{align}
+  f(\vect{h}^{t-1}, \vect{x}^t) = tanh(\vect{x} \times \vect{W} + \vect{h}_{t-1} \times \vect{U} )
+\end{align}
+This simple RNN is visualized in \cref{fig:rnn}.
 %% Recurrent neural networks (RNNs) are widely used in natural language processingtasks, especially speech recognition and machine translation. The primary goal ofRNNs is to approximate the mapping from a sequence of inputsx(1),...,x(t)to eithera single outputyor a sequence of outputsy(1),...,y(t). An RNN defines a mappingh(t)=f(h(t−1),x(t);θ)(2.2)whereh(t)is the hidden state, from which the final outputy(t)can be computed byeither a non-linear transformation or an MLP.11
-%% Popular RNN models.A simple RNN model can bef(h(t−1),x(t);θ) =tanh(Wx(t)+Uh(t−1)+b)(2.3)whereθ=  [W,U,b]. The key issue of such a simple form is that the long-termdependencies are hard to capture, which makes training extremely difficult. Toaddress this issue, a commonly used RNN model is the long short-term memorynetwork (LSTM) [89], which introduces amemory cell with various gatesto preservestate over a long sequence.LSTM maintains two states — the original hidden state and a newly introducedcontextstate (or memory cell). At a high level, LSTM defines a mapping functionas follows:h(t),c(t)=f(h(t−1),c(t−1),x(t);θ)(2.4)whereh(t)is the hidden state andc(t)is the context state. These two states areupdated by three gates — input gatei(t), forget gatef(t)and output gateo(t)asfollows:i(t)=σ(Wix(t)+Uih(t−1)+bi)f(t)=σ(Wfx(t)+Ufh(t−1)+bf)o(t)=σ(Wox(t)+Uoh(t−1)+bo)u(t)=tanh(Wux(t)+Uuh(t−1)+bu)c(t)=i(t)u(t)+f(t)c(t−1)h(t)=o(t)tanh(c(t))(2.5)whereθ=  [Wi,Ui,bi,Wf,Uf,bf,Wo,Uo,bo,Wu,Uu,bu],σis the sigmoid function,andis the element-wise product.Two common variants of LSTM are gated recurrent units (GRUs) [41] and tree-structured LSTM (Tree-LSTM) [177]. The former simplifies gates of LSTM for effi-ciency while the latter extends the modeling ability to tree structures.12
+%% Popular RNN models.A simple RNN model can be. The key issue of such a simple form is that the long-termdependencies are hard to capture, which makes training extremely difficult. Toaddress this issue, a commonly used RNN model is the long short-term memorynetwork (LSTM) [89], which introduces amemory cell with various gatesto preservestate over a long sequence.LSTM maintains two states — the original hidden state and a newly introducedcontextstate (or memory cell). At a high level, LSTM defines a mapping functionas follows:h(t),c(t)=f(h(t−1),c(t−1),x(t);θ)(2.4)whereh(t)is the hidden state andc(t)is the context state. These two states areupdated by three gates — input gatei(t), forget gatef(t)and output gateo(t)asfollows:i(t)=σ(Wix(t)+Uih(t−1)+bi)f(t)=σ(Wfx(t)+Ufh(t−1)+bf)o(t)=σ(Wox(t)+Uoh(t−1)+bo)u(t)=tanh(Wux(t)+Uuh(t−1)+bu)c(t)=i(t)u(t)+f(t)c(t−1)h(t)=o(t)tanh(c(t))(2.5)whereθ=  [Wi,Ui,bi,Wf,Uf,bf,Wo,Uo,bo,Wu,Uu,bu],σis the sigmoid function,andis the element-wise product.Two common variants of LSTM are gated recurrent units (GRUs) [41] and tree-structured LSTM (Tree-LSTM) [177]. The former simplifies gates of LSTM for effi-ciency while the latter extends the modeling ability to tree structures.12
 
 \subsection{Reinforcement learning}
 % In many tasks, the learning goal is beyond predicting some predefined label for a given input. Instead, the learning goal is to reach some beneficial state after a se- quence of actions following a set of rules from some initial state. Thus, what is really learned is a policy, which predicts an action given a state and the action is ideally optimal towards the ultimate beneficial state. Reinforcement learning is a system- atic methodology of solving this exact problem and has achieved remarkable suc- cesses in many challenging problems, particularly games. Prominent examples are strategical games like Chess [93] and Go [166], and video games like Atari [124], StarCraft [179], and Dota [132].

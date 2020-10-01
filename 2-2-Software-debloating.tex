@@ -1,5 +1,5 @@
 \section{Software debloating}
-This section present needed domain background for \cref{chap:doccam}, which is software debloating using partial evaluation.
+This section presents needed domain background for \cref{chap:doccam}, which is software debloating using partial evaluation.
 \paragraph{The software debloating problem.} Given a problem $\cP$ that has a set of functionalities $F = \{F_0, F_1, \dots, F_N\}$ and a user-specified subset of necessary functionalities $F_{spec} = \{F_i, F_j, \dots, F_k\}$, the goal of a software debloater is to produce a new program $\cP'$ that retains $F_{spec}$ and \emph{gracefully} refuses any functionalities in $F \setminus F_{spec}$.
 \begin{figure}[t]
 \begin{lstlisting}[language=Python]
