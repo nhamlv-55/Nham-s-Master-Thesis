@@ -23,22 +23,6 @@
 	\caption{Overview of Symbolic Model Checking and overview of \dpy.}
   \label{fig:overview}
 \end{figure*}
-
-
-% \ag{Should start with what we are doing in this paper, not with explaining what some other tool does.}
-% In this section, we give a brief overview of our neuro-symbolic guidance for symbolic reasoning. Our goal is to learn co-occurrence between symbolic formulas: how likely 2 symbolic formulas should be clustered together, given a dataset of formulas cooccurrance in the past. 
-% \ag{I assume that inductive generalization is explained in background. Here, you should be focusing on an example. Using something lile: Racall that Spacer does inductive generalation. Consider the following example. Then the following would happen.}`
-% Recall that \spc does inductive generalization. Consider the following example: During solving a particular CHC problem (\texttt{chc-lra-0002.smt2} from CHCComp18), to block a POB, \spc learns the local bounded lemma $\ell = \{x_3 = \ltrue, x_1 = \ltrue, x_6 = 1, x_9 - x_{10} \geq 41, x_5 = 1\}$, which is inductive relative to a context $F$($\indf$). \spc will then execute its iterative inductive generalization algorithm, as illustrated in the left part of Fig \ref{subfig-2:ind_gen}. First, \spc will try to drop the first literal, $x_3 = \ltrue$, by checking whether $\ell'=\{x_1 = \ltrue, x_6 = 1, x_9 - x_{10} \geq 41, x_5 = 1\}$ is still $\indf$. The underlying solver checks that $\ell'$ is indeed still $\indf$, and continue to check whether the first literal in $\ell'$, $x_1 = \ltrue$, can be dropped. Dropping this literal makes $\ell'$ no longer $\indf$, so it is added back to $\ell'$. After this process is done, \spc ends up with a new $\indf$ lemma $\ell_{generalized} = \{x_1 = \ltrue, x_9 - x_{10} \geq 41\}$.
-%In this section, we give a brief overview of our neuro-symbolic guidance for symbolic reasoning. 
-% \xs{This seems too general, let's elaborate a bit, e.g. introduce software model checking, then mention inductive generalization (IG).}
-
-% \xs{It's clear that we want to illustrate IG in the 2nd paragraph. We should cite IC3 but no need to say it's complicated then we simplify; no need to mention N, increase N, etc. Instead, quickly introduce key concepts such as learnt lemma, context that are necessary to define what is IG; then explain why IG matters (separating good from bad)}
-
-% \newcommand{\Tr}{\mathit{Tr}}
-% \newcommand{\Init}{\mathit{Init}}
-% \newcommand{\Bad}{\mathit{Bad}}
-% \newcommand{\Init}{\mathit{Inv}}
-
 In this section, we give an overview of our technique, outline the challenges
 involved, and our key insights to address them. The context is symbolic
 SMT-based Model Checking (SMC)~\cite{IC3,GPDR,spacer}, also known as
@@ -67,13 +51,6 @@ and we omit them here. The step we focus on in this paper is \emph{inductive
   generalization} (highlighted in blue in \cref{fig:smc}), that is responsible
 for generalizing learned lemmas. In practice, this step is crucial for the
 performance of SMC.
-
-% The symbolic reasoning task that we are targeting is \textit{inductive generalization} in the context of solving safety / CHC problems using the IC3 algorithm \cite{ic3,spacer}. At the high level, IC3 tries to prove a symbolic transtion system $T = \trs$ is SAFE or UNSAFE by finding either a proof verifying that $\Bad$ is unreachable from $\Init$ or a counter example ($\Init$, $\Tr$, and $\Bad$ are formulas representing the initial states, the transition relation, and the \emph{bad} states, respectively). The main IC3 algorithm is illustrated in Fig \ref{fig:smc}: At each iteration, IC3 tries to find a counter example showing that it is possible to reach $\Bad$ from $\Init$ in $N$ steps of $\Tr$. If such counter example doesn't exist, IC3 learns a lemma $\ell$ to prove it, then \textit{inductive generalizes} $\ell$, and finally increments $N$. The main loop will terminate if a counter example is found, or the generalized lemma is an \textit{inductive} (if the system is in an area $R$ defined by the lemma, by taking one step of $\Tr$, the system still remain in $R$) and \textit{safe} ($R$ has no overlapping with $\Bad$) invariant. 
-
-% \NL{I suggest moving the following paragraph and Figure 2 to Background}
-% \ag{Let's give it a try}
-
-% \xs{It occured to me that inductive generalization problem itself does not assume that generalization only happens by dropping literals; a smart agent may come up with another concise lemma with fewer and different set of literals}
 
 Conceptually, inductive generalization is a simple process, usually done with an
 algorithm similar to the one we call \textsc{IterDrop}, shown in
@@ -158,19 +135,6 @@ fewer ``useless '' choices, and, ultimately, increase performance of SMC.
 Furthermore, to avoid the difficulties of online learning, we rely on the fact
 that many systems come with multiple properties (i.e., $\Bad$ states), and
 learning from solving one property can be transferred to solving another.
-
-% AG: this does not belong here. Already in intro, maybe will move somewhere else
-% While learning a global predictor from a corpus of traces generated by solving
-% multiple different systems that can be used to guide solving any unseen CHC
-% problem is of our great interest, it is significantly harder than what we are
-% proposing and poses a great many challenges, such as the lack of an adequate
-% training corpus, or the fragility in learning a transferable symbolic model in
-% general, so we leave it as our future work. Another direction worth exploring
-% but we also leave for future work is an online-learning paradigm: run \spc for a
-% certain amount of time, kick off the training, then use the trained neural
-% component to guide the rest of the solving process.
-
-
 
 Concretely, we propose a new SMC, called \dpy. As shown in
 \cref{fig:dopey}, \dpy combines symbolic reasoning with guidance by a

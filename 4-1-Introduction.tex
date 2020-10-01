@@ -37,7 +37,7 @@ the residual program (e.g., \occam and \trimmer) or improve performance (e.g.,
 \llpe).
 
 The key step of a PE-based debloater is to estimate whether specializing (or
-inlining) a function will result in a smaller (or more secure) residual program.
+inlining) a function results in a smaller (or more secure) residual program.
 %Unfortunately, as with most problems in program analysis, this is very difficult.
 Specialization naturally increases the size of the code since it adds extra
 functions. However, since some inputs in the new functions have been replaced by
@@ -85,81 +85,3 @@ Our initial evaluation suggests that RL is a viable method for
 developing an effective specialization policy for debloating, and learning with
 handcrafted features is easier than with \insttovec.
 
-
-%% The main contribution of this paper is a \emph{calling context}
-%% feature that enables RL to find a useful heuristic for debloating software.
-%% \nl{not sure where to put this and how to phrase it properly: We compare our
-%%   handcrafted set of features with features learnt automatically via embedding
-%%   LLVM IR into vector space using \insttovec~\cite{inst2vec}, by implementing
-%%   both of them in \occam~\cite{occam}, a state-of-the-art
-%% PE-based software debloater for LLVM bitcode}
-%% \sout{We
-%% have implemented our new method in \occam~\cite{occam}, a state-of-the-art
-%% PE-based software debloater for LLVM bitcode}. We evaluate our tool, called
-%% \doccam, on the reduction of program size and the number of possible code-reuse
-%% attacks~\cite{gsa}. Our evaluation suggests that RL is a viable method for
-%% developing an effective specialization policy for debloating. \nl{struggle with
-%%   how to end intro} 
-%on \emph{online partial evaluation} (e.g., ).
-
-%% \emph{the debloating problem}
-
-%% Developing large and complex softwares are easier than ever thanks to open
-%% sourced frameworks and libraries, providing many needed building blocks to
-%% developers so that they do not have to spend time reinventing the wheel.
-%% However, this convenience comes with a cost: to be able to serve as many use
-%% cases as possible, libraries and frameworks are often loaded with
-%% too many functionalities that no single client could possible use all of them.
-%% And the clients themselves are not free of this problem either: cURL
-%% \cite{curl}, a popular tool to transfer data from or to a server, supports 23
-%% different protocols, many of them are outdated. Those bloated softwares lead to
-%% many problems such as size, performance, and security. In this paper, we will
-%%   focus on how to debloat the software for the security purposes.
-
-%% \emph{the specialization solution}
-
-%% Due to the severe problems caused by bloated software, debloating is a well
-%% studied problems. Different tools deploy different technique to remove bloats:
-%% CHISEL \cite{chisel} combines reinforcement learning with delta-debugging to
-%% make use of test suites to skim the code; TRIMMER \cite{trimmer} assumes that
-%% many running arguments are known beforehand and propagate that information
-%% during compile time; compilers themselves, such as LLVM \cite{llvm}, are also
-%% optimized to favor smaller binaries, and can be set to prioritize size
-%% above all else.
-%% \nl{Not sure if we should mention the following paragraph}
-%% Each has its own pros and cons: CHISEL achieves the highest
-%% reduction rate but is not ``sound'' because the correctness of the resulted program is only
-%% as good as its test suites, TRIMMER is sound but its performance is weaker, and
-%% relying on compiler for code debloating leads to weak results but doesn't
-%% require any extra information from programmers, hence it is the most convenient
-%% solution.
-
-%% In our work, we focus on producing ``sound'' and debloated softwares, hence our
-%% main comparision is with TRIMMER and LLVM, but we include here results from
-%% CHISEL as well, for reference.
-%% \nl{I can compile CHISEL but due to the very different natures of the two
-%%   approaches, I am not sure what is the best way to do comparision. CHISEL
-%%   will keep skimming the code as long as the final binaries pass the same tests as the
-%%   original binaries, while TRIMMER and OCCAM require \emph{manifests}} 
-%% TRIMMER relies on a special code transformation called ``specialization'', in
-%% which at a call site, instead of invoking the original callee, we create a
-%% special version of the callee, and replace all known arguments (deducted from the
-%% provided manifest) with constants, and inline the callee. Doing this
-%% transformation naively, the code base will actually be more bloated, since too
-%% many callsites are replaced by inlined functions. TRIMMER manages that problem by
-%% using a simple memory model, combined with loop unrolling and a pessimistic heuristic in which only
-%% callees those are known to be called exactly once are inlined.
-%% \emph{hook to explain why we are experimenting reinforcement learning in this
-%%   setting}
-
-%% In this paper, we present an approach using reinforcement learning to simplify
-%% the process of designing heuristics for a broader range of metrics. Our
-%% heuristic acts on the same action space as TRIMMER, namely whether to
-%% \emph{specialize} a function or not, and our early results show that we can
-%% achieve compatable results without using an explicit memory models and
-%% handcrafted heuristics.
-
-%%% Local Variables:
-%%% mode: latex
-%%% TeX-master: "neurips_2019"
-%%% End:

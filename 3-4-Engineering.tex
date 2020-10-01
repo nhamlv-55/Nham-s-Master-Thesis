@@ -23,26 +23,22 @@ More formally, we have the following important yet straightforward theorem.
 \begin{theorem}
 \tool is sound and terminating.
 \end{theorem}
-%\begin{proof}
-%The inductive check guarantees \tool's soundness.
-%\end{proof}
-%\begin{theorem}
-%\tool always terminates.
-%\end{theorem}
-%\begin{proof}
+% \begin{proof}
+% The inductive check guarantees \tool's soundness.
+% \end{proof}
+% \begin{theorem}
+% \tool always terminates.
+% \end{theorem}
+% \begin{proof}
 %  There are two cases where \cref{alg:qdrop} does not make progress: (1) when
 %  $\Delta K = \Delta C = \emptyset$, and (2) when the candidate lemma fails the
 %  inductiveness check. In both cases, the algorithm simply run the
 %  \texttt{dropOne} function to get new $K$ and $C$ (lines~$7$~and~$13$). This
 %  fallback mechanism guarantees termination, since \texttt{dropOne} always
 %  return a smaller $C$ (line~$9$~and~$12$ in \cref{alg:iter_drop}).
-%\end{proof}
+% \end{proof}
 
 \input{fig_times.tex}
-
-% Note that the size of $K$ is a parameter that we can tune: a smaller $K$ means a smaller seeding process, while a bigger $K$ means the candidate lemma will more likely to be $\indf$, thus reducing the number of retries.
-% \paragraph{Neural-symbolic intergration.}
-% \tool training and inferencing are implemented in Python using PyTorch \cite{pytorch}. \spc, like most industry Model Checkers, is implemented in C++, creating a gap that needs to be addressed. We implement a client-server architecture in which \tool is wrapped in a gRPC server connects to a gRPC client inside \spc. This architecture hits a sweet spot between the ease of implementation and performance: it is possible, but much harder, to implement \tool using PyTorch's C++ binding. Alternatively, connecting \tool with \spc through a file-based architecture is easy, but creates large IO overhead.
 \input{N_vs_P_vs_D.tex}
 \input{tab1.tex}
 

@@ -52,21 +52,3 @@ Specifically, we make the following contributions:
     challenging benchmarks from \chccomp.
 \end{itemize}
 
-% Given a lemma in cube form C, \spc\ will iterate through its literals and try to drop them one by one. To maintain soundness, \spc\ has to create a new query to ask the underlying SMT-solver(Z3) whether the newly reduced cube is still true. However, solving this query may not be trivial, and if the SMT-solver says that it is not sound to drop a literal, we have wasted the solving time for that query.
-
-% In order to make inductive generalization more effective, we present a mechanism that tries to guess whether a literal should be kept or drop, based on its past correlation and antirelation with other literals in the cube. Using this mechanism, we can significantly reduce the solving time of several hard problems.
-
-
-% Our approach is based on an intuition: if in the past we have observed many times that literal A cannot be dropped if literal B is in the cube, we can skip checking literal A whenever we see literal B in the future. Vice versa, if literal A1, A2, A3 always get dropped given the existance of literal B, we may try to check whether we can drop all 3 at once in the future instead of checking them one by one. If we can generalize said observation using a neural network, we can save a lot of time by asking the underlying solver only important questions.
-
-% We implement our approach ontop of \spc, a state-of-the-art CHC-solver, and evaluate our approach on \chccomp benchmarks and their randomly modified variants. We found that \tool was able to solve blah blah
-
-% \xs{maybe put a simple architecture graph?? like \href{https://arxiv.org/pdf/1802.03685.pdf}{neurosat}, or \href{https://files.sri.inf.ethz.ch/website/papers/pldi20-lait.pdf}{ETH paper} }
-
-% In summary, the core contributions of our work are as follows:
-% \begin{enumerate}
-%     \item A methodology to learn a heuristic for inductive generalization that can speed up overall solving time of CHC problems. In particular, our technique relies on past correlation and antirelation of literals, to predict whether we should immediately keep a literal or try to drop multiple literals at once.
-%     \item A demonstration of the effectiveness of our approach in solving randomly modified instances of \chccomp benchmarks. Our technique reduce the solving time by X\%.
-% \end{enumerate}
-
-

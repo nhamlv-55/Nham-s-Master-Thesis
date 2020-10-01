@@ -1,4 +1,4 @@
-\section{Deep learning}
+\section{Deep Learning}
 This section introduces deep neural networks, recurrent neural networks, and
 reinforcement learning. They are the machine learning tools that we use in
 \cref{chap:dopey} and \cref{chap:doccam}.
@@ -28,7 +28,7 @@ reinforcement learning. They are the machine learning tools that we use in
 \end{figure*}
 \subsection{Perceptron. Multi-layer Perceptron. The fixed-size computing paradigm.}
 There are already too many technical texts about the mathematical behind
-Perceptron and Multi-layer Perceptron. In this section, we will take a pictorial
+Perceptron and Multi-layer Perceptron. In this section, we take a pictorial
 look at it, starting from matrix multiplication. Multiplying two matrices of
 size $m \times n$ and $n \times p$ could be visualized as in \cref{fig:matmul},
 which resulted in a new matrix of size $m \times p$.
@@ -63,8 +63,8 @@ that under certain assumptions, 2 layer perceptrons is enough to approximate arb
 functions!
 
 \cref{fig:deep_matmul} visualizes a multi-layer perceptron. Looking at the
-figure, it is also clear why it is also called \emph{Deep learning}. One way to
-think about Deep learning, is that given a dataset $\cD$ of pairs $(\vect{x}_i, y_i)$, what
+figure, it is also clear why it is also called \emph{Deep Learning}. One way to
+think about Deep Learning, is that given a dataset $\cD$ of pairs $(\vect{x}_i, y_i)$, what
 is a good architecture (the arrangement of intermediate matrices), and what are
 the values for entries in the matrices.
 
@@ -92,7 +92,7 @@ typical RNN can be
 This simple RNN is visualized in \cref{fig:rnn}. Note that $\vect{W}$ and
 $\vect{U}$ are shared. This also means that the longer the chain, the easier it
 is for the first input to vanish/explode in the computation of the current
-input, since $\vect{h}_t$ will have the term $\vect{x}_0\times\vect{W}^t$ in it.
+input, since $\vect{h}_t$ has the term $\vect{x}_0\times\vect{W}^t$ in it.
 In practice, vanilla RNNs rarely can learn for chains longer than 10 time steps.
 
 To address this issue, a forget/gating mechanism is added to RNN, most notably
@@ -157,7 +157,7 @@ Markov decision process (MDP):
   \item A set of states $S$;
   \item a set of actions $A$;
   \item $P_a{s, s'} = Pr(s_{t+1} = s' \mid s_t = s, a_t = a)$ is the probability
-    a state $s$ will transit to another state $s'$, by taking the action $a$;
+    a state $s$ transits to another state $s'$, by taking the action $a$;
   \item $R_a{s, s'}$ is the reward \emph{after} transition from $s$ to $s'$ by
     taking the action $a$.  
 \end{itemize}
@@ -169,7 +169,7 @@ that in this thesis, we only care about finite state spaces (discrete actions).
 There is also continuous state spaces, i.e predicting the
 optimal speed at each time step. We want $\pi$ to maximize the expected
 cumulative reward. In our setting, where $P$ is deterministic (taking one action
-will result in only one possible new state), the cumulative
+results in only one possible new state), the cumulative
 reward is defined as:
 \begin{align}
   E = \sum_{t=0}^{T-1}{R_{a_t}(s_t, s_{t+1})}

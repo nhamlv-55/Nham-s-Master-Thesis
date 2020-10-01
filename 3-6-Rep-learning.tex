@@ -14,7 +14,6 @@ ASTs are natural representations of formulas that are traditionally used in pars
 
 Nonetheless, multiple semantically equivalent formulas can be represented by different trees. For example, the formulas $x + y > 0$ and $y + x > 0$ are semantically equivalent, yet differ in the concrete syntax, \emph{and} have different ASTs. To mitigate this, we put each formula in a ``normal'' form by simplifying all expressions that we can (for example, rewriting $x + 0$ into $x$), and ordering all associative operators. While there are many ways to normalize formulas (while not achieving a true normal form), we adopt a simple heuristic by using a simplification engine of the SMT solver Z3 \cite{z3}.
 The normalizer cannot handle deep semantic equivalences, such as normalizing $2/7 \cdot x_9 - 4/7 \cdot x_{10} \geq 0$ into $1/7\cdot x_9 - 2/7 \cdot x_{10} \geq 0$. However, we believe it is good enough for our setting.
-% \ag{Bad example, Z3 simplifier will reduce polynomials in exactly the way shown, it will also reduce all fractions}
 
 Note that semantically equivalent rewriting and normalization make our representations of symbolic formulas essentially \textit{directed acyclic graphs (DAGs) modulo semantic equivalence}, because semantically equivalent subtrees share the exact same embedding. Indeed, representations of symbolic formulas in our implementation are DAGs, although they are viewed as if they were trees by the embedding model. Without further notice, when we refer to a node in a tree, we actually mean its corresponding node in the DAG.
 

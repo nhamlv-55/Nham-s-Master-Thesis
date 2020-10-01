@@ -93,6 +93,6 @@ constant propagation, function inlining, and others to either reduce the size of
 the residual program (e.g., \occam and \trimmer) or improve performance (e.g.,
 \llpe).
 
-The key step of a PE-based debloater is to estimate whether specializing a function will result in a smaller (or more secure) final binary or library.
+The key step of a PE-based debloater is to estimate whether specializing a function can result in a smaller (or more secure) final binary or library.
 %Unfortunately, as with most problems in program analysis, this is very difficult.
 As we can see in \cref{fig:software_debloated_exp}, specialization naturally increases the size of the code since it adds extra copies of functions into the code. However, since some inputs in the new functions have been replaced by constant values, optimizations such as constant propagation, might become enabled and result in new optimization opportunities in subsequent optimization passes. Therefore, the decision whether or not a function should be specialized for a particular call-site is non-trivial.
