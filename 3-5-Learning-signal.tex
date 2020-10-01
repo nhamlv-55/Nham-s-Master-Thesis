@@ -44,7 +44,7 @@ That is, $\Ppos_{ij}$ is the probability that a literal $\lit_j$ appears in a le
     \item Let $F$ be a literal-frequency matrix of size $|1\times\GLit|$. $F_i$ is the number of times a literal $\lit_i$ appears in a \emph{generalized} lemma.
     Formally, $F_i = |\{ \ell \in \GLem \mid \lit_i \in \ell\}|$.
     \item Let $X$ be a literal co-occurrence matrix of size $|\GLit| \times |\GLit|$. $X_{ij}$ is the number of times both $\lit_i$ and $\lit_j$ are in some \emph{generalized} lemma in $\GLem$. Formally, $X_{ij} = |\{ \ell \in \GLem \mid \lit_i \in \ell, \lit_j \in \ell\}|$.
-    Note that $X_{ij} = X_{ji}$. For consistancy, we let $X_{ii} = F_{i}$.
+    Note that $X_{ij} = X_{ji}$. For consistency, we let $X_{ii} = F_{i}$.
     \item $\Ppos$ is a \emph{literal co-occurrence probability matrix} of size $|\GLit| \times |\GLit|$. $\Ppos_{ij}$ is the probability that $\lit_j$ appears in a \emph{generalized} lemma $\ell'$ given that $\lit_i$ is in $\ell'$. Formally, $\Ppos_{ij} = Pr(\lit_j \in \ell' \mid \lit_i \in \ell') = X_{ij}/F_i$ if $F_i \neq 0$, and $0$ otherwise. 
     
 \end{itemize}
@@ -53,7 +53,7 @@ The definition of the anti-occurrence matrix $\Pneg$ is similar. \newcommand{\xc
 \newcommand{\xanti}{X^{\mathit{anti}}}
 \begin{itemize}
     \item Let $\xcor$ be a literal co-occurrence matrix of size $|\Lit| \times |\Lit|$, such that $\xcor_{ij}$ is the number of times $\lit_i$ and $\lit_j$ are in a lemma $\ell \in \Lem$. Formally, $\xcor_{ij} = |\{ \ell \in \Lem \mid \lit_i \in \ell, \lit_j \in \ell\}|$. Clearly, $\xcor_{ij} = \xcor_{ji}$.
-    \item  Let $\xanti$ be a literal anti-occurrence matrix of size $|\Lit| \times |\Lit|$, such that $\xanti_{ij}$ is the number of times a pair $(\lit_i, \lit_j)$ satisfies the following conditions: (a) $\lit_i$ and $\lit_j$ are in in some lemma $\ell \in \Lem$, (b) $\lit_i$ is in the corresponding \emph{generalized} lemma $\ell' \in \GLem$, and (c) $lit_j$ is \emph{not} in $\ell'$. For consistancy, we set $\xanti_{ii} = 0$. Formally, $\xanti_{ij} = |\{ \ell \in \Lem 
+    \item  Let $\xanti$ be a literal anti-occurrence matrix of size $|\Lit| \times |\Lit|$, such that $\xanti_{ij}$ is the number of times a pair $(\lit_i, \lit_j)$ satisfies the following conditions: (a) $\lit_i$ and $\lit_j$ are in in some lemma $\ell \in \Lem$, (b) $\lit_i$ is in the corresponding \emph{generalized} lemma $\ell' \in \GLem$, and (c) $lit_j$ is \emph{not} in $\ell'$. For consistency, we set $\xanti_{ii} = 0$. Formally, $\xanti_{ij} = |\{ \ell \in \Lem 
     \mid 
     \ell' = indgen(\ell), 
     \lit_i,\lit_j \in \ell,  

@@ -17,7 +17,7 @@ At each call-site, \occam calculates the features
 described in \cref{tab:features} from the \llvm module, sending them to the \pytorch server, and
 transforming the code based on the returned decision.
 %
-During inference, the \pytorch server receives the message and runs the learnt
+During inference, the \pytorch server receives the message and runs the learned
 policy to decide whether to specialize that
 call-site. During training, the \pytorch server also keeps track of all the
 decisions it has made and uses that information to update its
@@ -45,7 +45,7 @@ server to scale up the learning process, which is justified by the Markov proper
 %% based on the returned decision.
 
 %% During inference, the PyTorch server receives the
-%% message, runs the learnt policy to decide whether or not \occam should specialize
+%% message, runs the learned policy to decide whether or not \occam should specialize
 %% that call-site. During training, the PyTorch server also keeps track of all the
 %% decisions it has made, and use that information to update its policy. With the
 %% Markov property of the state assumed, we can easily run multiple \occam on multiple

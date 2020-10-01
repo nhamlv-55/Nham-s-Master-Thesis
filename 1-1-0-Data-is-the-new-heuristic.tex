@@ -1,42 +1,16 @@
 % \section{Neural networks are the new symbolic heuristics}
-Symbolic reasoning predates Computer Science. The word \emph{algorithm} itself camed from the 9th-century mathematician Muhammad ibn Musa al-Khwarizmi, Latinized Algoritmi. Logics itself could be traced back to Aristotle in the 300s BC. It is fair to say that the whole field of Computer Science was born out of symbolic reasoning, with pioneering work such as Hilbert's \emph{Entscheidungsproblem}, Alonzo Church's \emph{Lambda Calculus}, and Alan Turing's \emph{Turing machine}.
+Symbolic reasoning predates Computer Science. The word \emph{algorithm} itself came from the 9th-century mathematician Muhammad ibn Musa al-Khwarizmi, Latinized Algoritmi. Logics itself could be traced back to Aristotle in the 300s BC. It is fair to say that the whole field of Computer Science was born out of symbolic reasoning, with pioneering work such as Hilbert's \emph{Entscheidungsproblem}, Alonzo Church's \emph{Lambda Calculus}, and Alan Turing's \emph{Turing machine}.
 A century has passed since the birth of modern Computer Science, and the field is now so diverse in the use of mathematics: Topology and Geometry in Computer Graphics, Probability and Linear Algebra in Deep learning, among others.
 Nowadays, symbolic reasoning could still be found in Computer Science in its pure form under the research of Programming Languages, Compilers, Formal Methods, and Automated Reasoning. 
 
-Throughout its history, at the heart of all the symbolic reasoning applications are carefully handcrafted heuristics, tried-and-true by years of human experts' research. While those heuristics work wonderfully, they come with the cost of being too specific to the problem at hand. For example, there is no easy way to transfer all the wisdom learnt in crafting a SAT-solver heuristic or the heuristic itself to create a better heuristic for a CHC-solver. This raises a natural, practical, and to a certain extend, a philosophical question: can a heuristic for a symbolic reasoning system be learnt automatically?
+Throughout its history, at the heart of all the symbolic reasoning applications are carefully handcrafted heuristics, tried-and-true by years of human experts' research. While those heuristics work wonderfully, they come with the cost of being too specific to the problem at hand. For example, there is no easy way to transfer all the wisdom learned in crafting a SAT-solver heuristic or the heuristic itself to create a better heuristic for a CHC-solver. This raises a natural, practical, and to a certain extend, a philosophical question: can a heuristic for a symbolic reasoning system be learned automatically?
 
-Just ten years ago, only the most ambitous researchers would answer ``yes'' for the above question. While glimpse of learnable heuristics could already be found in groundbreaking work such as TD-Gammon \cite{td-gammon}, the whole research direction was practically halted due to hardware limitation. Then, at the turn of the 2010s, researchers realized that the heaviest workload in Deep learning --- matrix multiplication --- could be done very efficiently using GPU --- an easy to find and cheap hardware component. AlexNet \cite{Krizhevsky:nips12} - one of the first works that demonstrated the scalability of Deep Neural Networks using GPUs - blew every other image recognition methods at the time out of the water, and overnight, old ideas were new again: Convolution Neural Network, Long-Short Term Memory (LSTM) Network, Deep Reinforcement Learning, etc. are all in the realm of possiblity. Nowadays, it is hard to find a field that is not yet ``transformed'' or ``revolutionized'' by Deep learning.
+Just ten years ago, only the most ambitious researchers would answer ``yes'' for the above question. While glimpse of learnable heuristics could already be found in groundbreaking work such as TD-Gammon \cite{td-gammon}, the whole research direction was practically halted due to hardware limitation. Then, at the turn of the 2010s, researchers realized that the heaviest workload in Deep learning --- matrix multiplication --- could be done very efficiently using GPU --- an easy to find and cheap hardware component. AlexNet \cite{Krizhevsky:nips12} - one of the first works that demonstrated the scalability of Deep Neural Networks using GPUs - blew every other image recognition methods at the time out of the water, and overnight, old ideas were new again: Convolution Neural Network, Long-Short Term Memory (LSTM) Network, Deep Reinforcement Learning, etc. are all in the realm of possibility. Nowadays, it is hard to find a field that is not yet ``transformed'' or ``revolutionized'' by Deep learning.
 
 Yet, symbolic reasoning is still one of the less successful applications of Deep learning: while Deep learning has been able to achieve human-level, or even superhuman-level on many tasks, such as Image Recognition, Automated Speech Recognition, Game Playing (Go, Atari), it still fails short of the state-of-the-art heuristics at many symbolic reasoning tasks, such as solving mathematical equations \cite{lample2019deep} or solving SAT problems \cite{neuralsat}. Ironically, symbolic reasoning was also the reason for the first \textbf{AI Winter}: Marvin Minsky, founder of the MIT AI Lab, and Seymour Papert, director of the lab at the time, in 1969 published the seminal book Perceptrons \cite{perceptrons}, that discussed perceptron's inability to learn the simple boolean function XOR because it is not linearly separable, turning research away from the perceptron. The history of symbolic reasoning and Deep learning, as often said, comes full circle.
 
-We hypothesize that it is possible to learn Deep learning-based heuristics those are better than handcrafed one. This thesis offers a glimpse into this possiblity, by presenting two concrete positive results where effective heuristics are indeed learnable from data, in two particular domains: compiler optimization, and automated reasoning. We choose to tackle those two domains because we believe the handcrafted heuristics there are not optimal and there are still a lot of room for improvement, and as shown in the following chapters, we indeed improved them by a large margin.
+We hypothesize that it is possible to learn Deep learning-based heuristics those are better than handcrafed one. This thesis offers a glimpse into this possibility, by presenting two concrete positive results where effective heuristics are indeed learnable from data, in two particular domains: compiler optimization, and automated reasoning. We choose to tackle those two domains because we believe the handcrafted heuristics there are not optimal and there are still a lot of room for improvement, and as shown in the following chapters, we indeed improved them by a large margin.
 
 \input{1-1-2-DOPEY}
 
 \input{1-1-1-DOCCAM}
-
-
-
-
-
-
-% tools, \dpy and \doccam. \dpy is a neural-symbolic symbolic Model Checker (SMC) that learns a heuristic for inductive generalization from co-occurrence probabilities between atoms that do (or do not) appear together in facts (called \emph{lemmas}). \doccam is a reinforcement learning based approach to
-%   automatically learn a heuristic for optimzing the number of exploitable Return-Oriented Programming (ROP) gadgets during the compilation time.
-
-% Model checking and compiler are as nearly as old as Computer Science are interesting research problems, and important practical applications. Seminar works on compiler and verification can be traced back to the pioneering works of Turing \cite{turing49} and Hopper in late 40s and the early 50s, at the very dawn of modern computing. Verifying the safety of software systems and optimizing the compiled binaries play indisputable roles in the progress of computing since then, and become even more important nowadays: software powers our internet, controls our infrastructure, monitors our health, and needed to be run even on low-powered devices.
-
-% However, compiler optimization and automated model checking still remain two very challenging problems. At the heart of every model checking and compiler optimization algorithms are \emph{symbolic reasoning systems} with carefully crafted heuristics, customized for each and every project, which are expensive and not transferable. 
-
-% This raises a practical research question: \emph{can an effective heuristic for a symbolic reasoning system be discovered automatically?}
-
-
-% Why are we doing what we are doing?
-
-% Why now? (Deep learning starts to work)
-
-% It is still an open question
-
-% Why the 2 different things
-
-% Write an email, mention what the thesis gonna be about in the email.
-
