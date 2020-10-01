@@ -65,55 +65,55 @@ The definition of the anti-occurrence matrix $\Pneg$ is similar. \newcommand{\xc
 
      
     
-%    Note that $\Ppos_{ij} \neq \Ppos_{ji}$: the co-occurrence probability is \emph{not} symmetric.
+% %    Note that $\Ppos_{ij} \neq \Ppos_{ji}$: the co-occurrence probability is \emph{not} symmetric.
 
-An an example, consider a set $\Lem = \{\ell_1, \ell_2, \ell_3\}$ of~3 original lemmas and the corresponding set $\GLem = \{\ell'_1, \ell'_2, \ell'_3\}$ of generalizations: 
-{\small\begin{align*}
-   \ell_1 &= \{\lit_1, \lit_2, \lit_3, \lit_4\} &  \ell'_1 &= \{\lit_1, \lit_2, \lit_3\} \\
-   \ell_2 &= \{\lit_1, \lit_2, \lit_3\} &  \ell'_2 &= \{\lit_1, \lit_2\} \\
-   \ell_3 &= \{\lit_1, \lit_3, \lit_4\} & \ell'_3 &= \{\lit_1\}
-\end{align*}}%
-% Then,
+% An an example, consider a set $\Lem = \{\ell_1, \ell_2, \ell_3\}$ of~3 original lemmas and the corresponding set $\GLem = \{\ell'_1, \ell'_2, \ell'_3\}$ of generalizations: 
 % {\small\begin{align*}
-% \small
-% \Ppos &=
-%   \begin{vmatrix}
-%     1 & .67 & .33 \\
-%     1 & 1 & .5  \\
-%     1 & 1 & 1  \\
-%   \end{vmatrix} &
-%   \Pneg &= 
-%       \begin{vmatrix}
-%     0 & 0 & .67 & 1 \\
-%     0 & 0 & .5 & 1 \\
-%     0 & 0 & 0 & 1 \\
-%     0 & 0 & 0 & 0
-%   \end{vmatrix}
+%    \ell_1 &= \{\lit_1, \lit_2, \lit_3, \lit_4\} &  \ell'_1 &= \{\lit_1, \lit_2, \lit_3\} \\
+%    \ell_2 &= \{\lit_1, \lit_2, \lit_3\} &  \ell'_2 &= \{\lit_1, \lit_2\} \\
+%    \ell_3 &= \{\lit_1, \lit_3, \lit_4\} & \ell'_3 &= \{\lit_1\}
 % \end{align*}}%
-\NL{Fix the example}
-In the example:
-\begin{align*}
-    \Lem &=\{\ell_1, \ell_2, \ell_3\} & \GLem &=\{\ell_1', \ell_2', \ell_3'\}\\
-    \Lit &=\{\lit_1, \lit_2, \lit_3, \lit_4\} & \GLit &=\{\lit_1, \lit_2, \lit_3, \lit_4\}\\
-  F &= [3, 2, 1, 1] \\
-  X &= 
-  \begin{vmatrix}
-    3 & 2 & 1 & 1 \\
-    2 & 2 & 0 & 0 \\
-    1 & 0 & 1 & 0 \\
-    1 & 0 & 0 & 1
-    \end{vmatrix}
-    &
-  \Ppos &= 
-  \begin{vmatrix}
-    1 & .67 & .33 & .33 \\
-    1 & 1 & 0 & 0 \\
-    1 & 0 & 1 & 0 \\
-    1 & 0 & 0 & 1
-  \end{vmatrix}
-\end{align*}
-Thus, $\Ppos_{12} = 0.67$ and $\Ppos_{13} = 0.33$. That is,
- $\lit_2$ is twice as likely as $\lit_3$ to be in the same generalized lemma as $\lit_1$.
+% % Then,
+% % {\small\begin{align*}
+% % \small
+% % \Ppos &=
+% %   \begin{vmatrix}
+% %     1 & .67 & .33 \\
+% %     1 & 1 & .5  \\
+% %     1 & 1 & 1  \\
+% %   \end{vmatrix} &
+% %   \Pneg &= 
+% %       \begin{vmatrix}
+% %     0 & 0 & .67 & 1 \\
+% %     0 & 0 & .5 & 1 \\
+% %     0 & 0 & 0 & 1 \\
+% %     0 & 0 & 0 & 0
+% %   \end{vmatrix}
+% % \end{align*}}%
+% \NL{Fix the example}
+% In the example:
+% \begin{align*}
+%     \Lem &=\{\ell_1, \ell_2, \ell_3\} & \GLem &=\{\ell_1', \ell_2', \ell_3'\}\\
+%     \Lit &=\{\lit_1, \lit_2, \lit_3, \lit_4\} & \GLit &=\{\lit_1, \lit_2, \lit_3, \lit_4\}\\
+%   F &= [3, 2, 1, 1] \\
+%   X &= 
+%   \begin{vmatrix}
+%     3 & 2 & 1 & 1 \\
+%     2 & 2 & 0 & 0 \\
+%     1 & 0 & 1 & 0 \\
+%     1 & 0 & 0 & 1
+%     \end{vmatrix}
+%     &
+%   \Ppos &= 
+%   \begin{vmatrix}
+%     1 & .67 & .33 & .33 \\
+%     1 & 1 & 0 & 0 \\
+%     1 & 0 & 1 & 0 \\
+%     1 & 0 & 0 & 1
+%   \end{vmatrix}
+% \end{align*}
+% Thus, $\Ppos_{12} = 0.67$ and $\Ppos_{13} = 0.33$. That is,
+ % $\lit_2$ is twice as likely as $\lit_3$ to be in the same generalized lemma as $\lit_1$.
 
 %\newcommand{\xcor}{X^{\text{cor}}}
 %\newcommand{\xanti}{X^{\text{anti}}}
