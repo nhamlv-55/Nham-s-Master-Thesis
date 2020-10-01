@@ -318,38 +318,56 @@ finding a counterexample.
     $F_0 := \Init, F_i := \top \textbf{ for all } i > 0$ \tcp*{lemma trace}
     $\cU := \Init$ \tcp*{reachable states}
     \select{}{
-      \Rule*[h]{Candidate} \lGuard {$\isSat(F_N \land \Bad)$} {$Q := Q \cup
+      \Rule*[h]{Candidate} \lGuard {$\isSat(F_N \land \Bad)$} {
+        
+        $\qquad Q := Q \cup
         \langle \Bad, N \rangle$}
 
       \Rule*[h]{Predecessor} \lGuard {$\langle \varphi, i + 1 \rangle \in Q$, $M \models
-        F_i \land \Tr \land \varphi'$}
-      {$Q := Q \cup \langle \getP(\varphi, M), i \rangle$}
+        F_i \land \Tr \land \varphi'$}{
+
+        $\qquad Q := Q \cup \langle \getP(\varphi, M), i \rangle$}
 
 
       \Rule*[h]{Successor} \lGuard {$\langle \varphi, i + 1 \rangle \in Q$, $M \models \cF(\cU) \land
-        \varphi'$}{$\cU := \cU \lor  \getS(\cU, M)[\Consts' \mapsto\Consts]$}
+        \varphi'$}{
+
+        $\qquad \cU := \cU \lor  \getS(\cU, M)[\Consts' \mapsto\Consts]$}
 
       \Rule*[h]{Conflict} \lGuard {$\langle \varphi, i + 1 \rangle \in Q$, $\cF(F_i) \limp \neg \varphi'$}
-      {$F_j := ( F_j \land  \itp(\cF(F_i), \varphi')[\Consts' \mapsto \Consts] )
+      {
+
+        $\qquad F_j := ( F_j \land  \itp(\cF(F_i), \varphi')[\Consts' \mapsto \Consts] )
         \makebox[0pt][l]{ $\textbf{ for all } j \leq i + 1 $}$}
 
       \Rule*[h]{Induction} \lGuard{$\ell \in F_{i+1}, \ell = (\varphi \lor \psi), \cF(\varphi \land F_i) \limp
-        \varphi'$}{$F_{j} \gets F_{j} \land \varphi \textbf{ for all } j
+        \varphi'$}{
+
+        $\qquad F_{j} \gets F_{j} \land \varphi \textbf{ for all } j
         \leq i + 1$}
 
       \Rule*[h]{Propagate} \lGuard{$\ell \in F_{i}, F_i \land \Tr \limp
-        \ell'$}{$F_{i + 1} \gets (F_{i + 1} \land \ell)$}
+        \ell'$}{
 
-      \Rule*[h]{Unfold} \lGuard {$F_N \limp \neg \Bad$}{$N := N + 1$}
+        $\qquad F_{i + 1} \gets (F_{i + 1} \land \ell)$}
+
+      \Rule*[h]{Unfold} \lGuard {$F_N \limp \neg \Bad$}{
+
+        $\qquad N := N + 1$}
 
       \Rule*[h]{Safe} \lGuard {$F_{i + 1} \limp F_{i} {\normalfont \textbf{ for some }} i <
-        N$}{\Return $\langle  \safe, F_i \rangle$}
+        N$}{
 
-      \Rule*[h]{Unsafe} \lGuard {\isSat($\Bad \land \cU$)}{\Return \unsafe}
+        \qquad \Return $\langle  \safe, F_i \rangle$}
+
+      \Rule*[h]{Unsafe} \lGuard {\isSat($\Bad \land \cU$)}{
+
+        \qquad \Return \unsafe}
     }
   }
-  \caption{\spc algorithm as described in \cite{GSpacer}, with the shorthand $\cF(\varphi) = \cU' \lor (\varphi \land \Tr)$. Modified to make
-    annotation coherent.}
+  \caption{\spc algorithm as described in \cite{GSpacer}, modified to make
+    annotation coherent. $\Consts$ and $\Consts'$ are constant symbols, which
+    typically represent program variables. We use the shorthand $\cF(\varphi) = \cU' \lor (\varphi \land \Tr)$.}
   \label{alg:spc}
 \end{algorithm2e}
 
@@ -363,12 +381,6 @@ lemma is too weak, and cannot be used to block the red-lined \pob. Since there
 could be exponentially many \pobs, it is of the utmost importance that a learned
 lemma could be reused to block multiple \pobs. One way to do so is to try to
 drop literals in the learned lemma, and check that the reduced lemma is still
-inductive relative to the previous frame. In \cref{fig:vis_ind_gen},
-inductiveness is illustrated as blue arrows: from anywhere in the green
-region, after one step of the transition system, we are still in the green
-region.
-As we can see from \cref{fig:not_ind_gen}, starting from the lemma $\{\texttt{lit\_0},
-\texttt{lit\_1}, \texttt{lit\_2}\}$, dropping \texttt{lit\_0} results in a lemma
-that is no longer inductive (it is possible to move outside of the area in one
-step of $\Tr$), while dropping \texttt{lit\_1} doesn't affect its inductiveness, as illustrated in \cref{fig:ind_gen}.
+inductive relative to the previous frame.
+As we can see from \cref{fig:not_ind_gen}, starting from the lemma $\{\texttt{lit\_0}, \texttt{lit\_1}, \texttt{lit\_2}\}$, dropping \texttt{lit\_0} results in a lemma that is no longer inductive, while dropping \texttt{lit\_1} doesn't affect its inductiveness, as illustrated in \cref{fig:ind_gen}.
 

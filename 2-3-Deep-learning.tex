@@ -63,12 +63,10 @@ that under certain assumptions, 2 layer perceptrons is enough to approximate arb
 functions!
 
 \cref{fig:deep_matmul} visualizes a multi-layer perceptron. Looking at the
-figure, it is also clear why it is also called \emph{Deep learning}. The goal of
-Deep learning, is that given a fixed architecture and non-linear activation
-functions, how do we learn the matrices in between the input and the output. In practice, the
-non-linear functions could be $tanh$, $ReLU$, $sigmoid$, among others.
-
-
+figure, it is also clear why it is also called \emph{Deep learning}. One way to
+think about Deep learning, is that given a dataset $\cD$ of pairs $(\vect{x}_i, y_i)$, what
+is a good architecture (the arrangement of intermediate matrices), and what are
+the values for entries in the matrices.
 
 \paragraph{The fixed-size computing paradigm.} Multi-layer perceptrons are
 great, and could be used to approximate many functions. But it also forces
@@ -89,9 +87,51 @@ In many tasks, we need to process inputs of arbitrary length, to predict outputs
 in which $f$ is our linear transformation, followed by a non-linear filter. A
 typical RNN can be
 \begin{align}
-  f(\vect{h}^{t-1}, \vect{x}^t) = tanh(\vect{x} \times \vect{W} + \vect{h}_{t-1} \times \vect{U} )
+  f(\vect{h}^{t-1}, \vect{x}^t) = tanh(\vect{x}_t \times \vect{W} + \vect{h}_{t-1} \times \vect{U} )
 \end{align}
-This simple RNN is visualized in \cref{fig:rnn}.
+This simple RNN is visualized in \cref{fig:rnn}. Note that $\vect{W}$ and
+$\vect{U}$ are shared. This also means that the longer the chain, the easier it
+is for the first input to vanish/explode in the computation of the current
+input, since $\vect{h}_t$ will have the term $\vect{x}_0\times\vect{W}^t$ in it.
+In practice, vanilla RNNs rarely can learn for chains longer than 10 time steps.
+
+To address this issue, a forget/gating mechanism is added to RNN, most notably
+in architecture like LSTM \cite{lstm} and GRU \cite{gru}. Equations to compute
+the output (update) at the time step $t$  for LSTM
+with a forget gate are:
+\begin{align}
+  \vf_t &= \sigma(\vect{x}_t \times \vect{W}_f + \vect{h}_{t-1} \times \vect{U}_f + \text{bias}_f)\\
+  \vi_t &= \sigma(\vect{x}_t \times \vect{W}_i + \vect{h}_{t-1} \times \vect{U}_i + \text{bias}_i)\\
+  \vo_t &= \sigma(\vect{x}_t \times \vect{W}_o + \vect{h}_{t-1} \times \vect{U}_o + \text{bias}_o)\\
+  \va_t &= \tanh{(\vect{x}_t \times \vect{W}_a + \vect{h}_{t-1} \times \vect{U}_a + \text{bias}_a)}\\
+  \vc_t &= \vf_t \circ \vc_{t-1} + \vi_t \circ \va_t \\
+  \vh_t &= \vo_t \circ \tanh{(\vc_t)}
+\end{align}
+where $\sigma$ is the sigmoid activation function, and $\circ$ is the
+element-wise product.
+
+\paragraph{TreeLSTM}
+While LSTM works well on a sequence of inputs, it doesn't explicitly work with a
+tree of inputs, such as an Abstract Syntax Tree (AST). One can force LSTM to work with a tree like of inputs by
+flattening the tree into a sequence of tokens, but this normally requires adding
+more separator tokens (like brackets) into the sequence, making if inefficient.
+A better way is to directly enforce the tree structure into the update
+equations, which was introduced in \cite{TreeLSTM}. Given a tree, let $C^j$
+denote the set of children of node $j$. The Child-Sum TreeLSTM update equations
+are:
+\begin{align}
+  \vs_j &= \sum_{k\in C^j}{\vh_k} \label{eq:summation}\\
+  \vf_{jk} &= \sigma(\vect{x}_j \times \vect{W}_f + \vect{h}_{k} \times \vect{U}_f + \text{bias}_f)\\
+  \vi_j &= \sigma(\vect{x}_j \times \vect{W}_i + \vect{s}_{j} \times \vect{U}_i + \text{bias}_i)\label{eq:tree-lstm-update-i}\\
+  \vo_j &= \sigma(\vect{x}_j \times \vect{W}_o + \vect{s}_{j} \times \vect{U}_o + \text{bias}_o)\label{eq:tree-lstm-update-o}\\
+  \va_j &= \tanh{(\vect{x}_j \times \vect{W}_a + \vect{s}_{j} \times \vect{U}_a + \text{bias}_a)}\label{eq:tree-lstm-update-a}\\
+  \vc_j &= \vi_j \circ \va_{j} + \sum_{k \in C^j}{\vf_{jk} \circ \vc_k} \\
+  \vh_j &= \vo_j \circ \tanh{(\vc_j)}
+\end{align}
+Intuitively, TreeLSTM incorporates the \emph{summation} of outputs of children
+(\cref{eq:summation}) into the computation of the parent node
+(in \cref{eq:tree-lstm-update-i} to \cref{eq:tree-lstm-update-a}, TreeLSTM uses
+$\vs$ instead of $\vh$ as in vanilla LSTM), which enforces the tree structure.
 %% Recurrent neural networks (RNNs) are widely used in natural language processingtasks, especially speech recognition and machine translation. The primary goal ofRNNs is to approximate the mapping from a sequence of inputsx(1),...,x(t)to eithera single outputyor a sequence of outputsy(1),...,y(t). An RNN defines a mappingh(t)=f(h(t−1),x(t);θ)(2.2)whereh(t)is the hidden state, from which the final outputy(t)can be computed byeither a non-linear transformation or an MLP.11
 %% Popular RNN models.A simple RNN model can be. The key issue of such a simple form is that the long-termdependencies are hard to capture, which makes training extremely difficult. Toaddress this issue, a commonly used RNN model is the long short-term memorynetwork (LSTM) [89], which introduces amemory cell with various gatesto preservestate over a long sequence.LSTM maintains two states — the original hidden state and a newly introducedcontextstate (or memory cell). At a high level, LSTM defines a mapping functionas follows:h(t),c(t)=f(h(t−1),c(t−1),x(t);θ)(2.4)whereh(t)is the hidden state andc(t)is the context state. These two states areupdated by three gates — input gatei(t), forget gatef(t)and output gateo(t)asfollows:i(t)=σ(Wix(t)+Uih(t−1)+bi)f(t)=σ(Wfx(t)+Ufh(t−1)+bf)o(t)=σ(Wox(t)+Uoh(t−1)+bo)u(t)=tanh(Wux(t)+Uuh(t−1)+bu)c(t)=i(t)u(t)+f(t)c(t−1)h(t)=o(t)tanh(c(t))(2.5)whereθ=  [Wi,Ui,bi,Wf,Uf,bf,Wo,Uo,bo,Wu,Uu,bu],σis the sigmoid function,andis the element-wise product.Two common variants of LSTM are gated recurrent units (GRUs) [41] and tree-structured LSTM (Tree-LSTM) [177]. The former simplifies gates of LSTM for effi-ciency while the latter extends the modeling ability to tree structures.12
 

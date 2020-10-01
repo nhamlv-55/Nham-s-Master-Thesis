@@ -4,7 +4,20 @@ Recent advances in deep learning, especially language modeling, has played a tre
 In previous chapters, we have studied two exciting applications of learning a better heuristic for symbolic reasoning tasks, specifically Inductive Generalization, and Software Debloating.
 In this chapter, we outline some future directions on guiding symbolic reasoning using machine learning, which we think are feasible, and will play a major role in making neural-guidance not just another tool, but a powerful hammer in tackling down symbolic reasoning tasks.
 
-\paragraph{Representation learning for formal languages.} Deep learning has made tremendous progress in understanding natural language, and in many cases surpassing human-level \cite{whosaidwhat, whosaidwhat2}. However, there is a big gap between natural language understanding and formal language understanding. Natural language, as a means of transferring information through noisy channels (i.e sound wave through the air, or word-of-mouth gossiping), has a lot of redundancy in both grammar and context \cite{ling_redundancy}. This redundancy helps with, among others, enhancing the comprehensibility of natural language. In contrast, formal languages, such as formulas or programming languages, are designed to be as concise and compact as possible, with little to no redundancy. This makes representation learning for formal languages very challenging. For example, many breakthroughs in NLP are based on the word-guessing tasks --- given a sentence, we randomly remove some words in it, and try to guess them using the remaining words --- such as word2vec \cite{word2vec} or BERT \cite{bert}. Due to redundancy, it is reasonable to try guessing a word from its context, but it is counter-intuitive to try to do the same for formal languages. 
+\paragraph{Representation learning for formal languages.} Deep learning has made
+tremendous progress in understanding natural language, and in many cases
+surpassing human-level \cite{glue-bench}.
+However, there is a big gap between natural language understanding and formal
+language understanding. Natural language, as a means of transferring information
+through noisy channels (i.e sound wave through the air, or word-of-mouth
+gossiping), has a lot of redundancy in both grammar and context
+\cite{ling_redundancy}.
+This redundancy helps with, among others, enhancing the comprehensibility of
+natural language.
+In contrast, formal languages, such as formulas or programming languages, are
+designed to be as concise and compact as possible, with little to no redundancy.
+This makes representation learning for formal languages very challenging.
+For example, many breakthroughs in NLP are based on the word-guessing tasks --- given a sentence, we randomly remove some words in it, and try to guess them using the remaining words --- such as word2vec \cite{word2vec} or BERT \cite{bert}. Due to redundancy, it is reasonable to try guessing a word from its context, but it is counter-intuitive to try to do the same for formal languages. 
 
 One promising way to learn a good representation for formal languages is to use the structure of the entities. In \cref{chap:dopey}, we show that augmenting an AST with domain knowledge about the tokens can achieve good results on representing linear arithmetic formulas. Given that graph-based and tree-based methods have been successful in structure learning tasks, such as drug discovery \cite{drug_dis}, it is reasonable to believe that representation learning for small to medium mathematical formulas is feasible. While in \cref{chap:doccam}, we cannot transfer results of inst2vec \cite{inst2vec} into our domain, this graph-based work shows promising results in many different tasks, and it is foreseeable that better feature engineering at the token level may help us achieve even better code representation.
 
