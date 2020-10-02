@@ -40,7 +40,7 @@ call-site arguments to their corresponding formal parameters. Let $B$, $B
 specialization of the call-site does: 
 \begin{enumerate}
 \item Create a new function $spec\_calleeF(\mathsf{formals}(A \setminus B))$,
-  such that the body of $spec\_calleeF$ is identical to the body of the original
+  such that $spec\_calleeF$'s body is identical to the body of the original
   $calleeF$ except that $\mathsf{formals}(B)$ are replaced with their values.
   
 \item Perform constant propagation to push forward the information to the

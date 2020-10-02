@@ -65,7 +65,7 @@ functions!
 \cref{fig:deep_matmul} visualizes a multi-layer perceptron. Looking at the
 figure, it is also clear why it is also called \emph{Deep Learning}. One way to
 think about Deep Learning: given a dataset $\cD$ of pairs $(\vect{x}_i, y_i)$, what
-is a good architecture (the arrangement of intermediate matrices), and what are
+is a good architecture (the arrangement of the intermediate matrices), and what are
 the values for entries in the matrices?
 
 \paragraph{The fixed-size computing paradigm.} Multi-layer perceptrons are
@@ -151,10 +151,10 @@ the data all by itself. \emph{Reinforcement learning} is such a paradigm, and
 has achieved remarkable successes in many difficult tasks, such as Robotics
 \cite{convai} or playing board games \cite{td-gammon, alphago}.
 
-\paragraph{Markov Decision Process.} A standard formulation of RL is using
-Markov decision process (MDP):
+\paragraph{Markov Decision Process.} A standard formulation of RL is as a
+Markov decision process (MDP), that includes:
 \begin{itemize}
-  \item A set of states $S$;
+  \item a set of states $S$;
   \item a set of actions $A$;
   \item $P_a(s, s') = Pr(s_{t+1} = s' \mid s_t = s, a_t = a)$ is the probability
     a state $s$ transits to another state $s'$, by taking the action $a$;
@@ -166,7 +166,7 @@ the current state $s_t$ and the immediate reward $r_t$. The goal of RL is to
 learn a policy $\pi: A \times S \mapsto [0, 1], \pi(a, s) = Pr(a_t=a|s_t=s)$
 that defines the probability of taking an action $a$ when in state $s$. Note
 that in this thesis, we only care about finite action spaces (discrete actions).
-There is also continuous action spaces, i.e predicting the
+There are also continuous action spaces, e.g predicting the
 optimal speed at each time step. We want $\pi$ to maximize the expected
 cumulative reward. In our setting, where $P$ is deterministic (taking one action
 results in only one possible new state), the cumulative
@@ -178,8 +178,8 @@ where $T$ could be $\infty$ if necessary.
 
 The dilemma of RL lies in the fact that we often do not have access to the true
 reward function $R$ (if we do, we can simply sample many tuple $(s, a,
-R_a(s))$ and learn it in a supervised manner), only the final reward at the
-end of the execution of the policy, but in practice RL cannot be trained without
+R_a(s, s'))$ and learn it in a supervised manner), only the final reward at the
+end of the execution of the policy, yet in practice RL cannot be trained without
 intermediate feed backs. For example, imagine if we can only train a Chess RL system if the
 only reward is a binary signal at the end! Hence, a big part of RL research is
 about crafting adequate \emph{proxy rewards}, that tells the agent how well

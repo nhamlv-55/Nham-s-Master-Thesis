@@ -3,7 +3,7 @@
 \SetKwInput{KwIn}{In}
 \SetKwInput{KwOut}{Out}
 \newcommand{\safety}{\textsc{Safety}\xspace}
-In this section, we present the \safety problem, SAT-based model checking, and the IC3/PDR algorithm. They are needed for understanding \cref{chap:dopey}.
+In this section, we present the \safety problem and the state-of-the-art algorithm IC3/ \spc. They are needed for understanding \cref{chap:dopey}.
 \paragraph{The \safety problem.}
 % \nl{currently borrowed from gspacer}
 
@@ -39,7 +39,7 @@ In this case, we also say that $P$ has a \emph{counterexample (CEX)} of length $
 
 
 
-The safety problem defined above is an instance of a more general problem,
+The \safety problem defined above is an instance of a more general problem,
 CHC-SAT, of satisfiability of Constrained Horn Clauses (CHC). With abuse of
 notation, in this thesis we use \textit{solving CHCs} and \textit{verifying
   safety properties} interchangeably.
@@ -127,18 +127,15 @@ maintains the following:
 \end{itemize}
 
 The \texttt{Candidate} rule adds a \pob $\langle \Bad, N \rangle$ to
-the queue. If a \pob $\langle \varphi, i \rangle$ cannot be blocked (proven to
-be unreachable) because
-$\varphi$ is reachable from frame $(i-1)$, the \texttt{Predecessor} rule
+the queue. If a \pob $\langle \varphi, i \rangle$ cannot be blocked because
+$\varphi$ is reachable from frame $(i-1)$, \texttt{Predecessor}
 generates a predecessor $\psi$ of $\varphi$ using \getP, and add $\langle \psi,
-i-1 \rangle$ to $Q$. The \texttt{Successor} rule updates the set of reachable
-states if the \pob is reachable. If the \pob is blocked, the \texttt{Conflict}
-rule strengthens the trace $F$ by using interpolation to learn a new lemma
-$\ell$ that blocks the \pob, i.e., $\ell \implies \neg \varphi$. The
-\texttt{Induction} rule strengthens a lemma by inductive generalization and the
-\texttt{Propagate} rule pushes a lemma to a higher frame. If the $\Bad$ state
-has been blocked at $N$, the \texttt{Unfold} rule increments the depth of
-unrolling $N$.
+i-1 \rangle$ to $Q$. \texttt{Successor} updates the set of reachable
+states if the \pob is reachable. If the \pob is blocked, \texttt{Conflict}
+strengthens the trace $F$ by using interpolation to learn a new lemma
+$\ell$ that blocks the \pob, i.e., $\ell \implies \neg \varphi$. \texttt{Induction} 
+strengthens a lemma by inductive generalization and \texttt{Propagate} pushes a lemma to a higher frame. If the $\Bad$ state
+has been blocked at $N$, \texttt{Unfold} increments the depth of unrolling $N$.
 \begin{algorithm2e}[t]
   \SetAlgoNoLine
   \LinesNotNumbered
